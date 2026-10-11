@@ -10,8 +10,8 @@ function back() { ui.stack.pop(); ui.focus = true; ui.menu = null; render(); win
 function setTab(t) { ui.stack = []; ui.tab = t; ui.focus = true; ui.menu = null; render(); window.scrollTo(0, 0); }
 function requireAuth() { if (S.me) return true; go({ name: 'signin' }); return false; }
 let toastTimer = null;
-function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3200); }
-const errText = (e) => (e && e.message) || 'Something went wrong. Please try again.';
+function toast(msg) { const el = $('#toast'); el.textContent = tr(msg); el.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 3200); }
+const errText = (e) => tr((e && e.message) || 'Something went wrong. Please try again.');
 
 /* optimistic update with rollback */
 async function act(apply, call, undo) {
@@ -31,32 +31,32 @@ const toggleSavePost = (pid) => { if (requireAuth()) toggleRow('post_saves', { p
 const toggleFollow = (id) => { if (requireAuth() && id !== myId()) toggleRow('follows', { follower_id: myId(), following_id: id }); };
 async function updateMe(patch) { await API.update('profiles', { id: myId() }, patch); Object.assign(S.me, patch); }
 function copyText(text, okMsg) {
-  const fallback = () => toast(okMsg + ' ' + text);
+  const fallback = () => toast(tr(okMsg) + ' ' + text);
   try { navigator.clipboard.writeText(text).then(() => toast(okMsg), fallback); } catch (e) { fallback(); }
 }
 
 /* ---------- small shared pieces ---------- */
-const chip = (label, on, fn, color, k) => h('button', { class: 'chip', type: 'button', 'aria-pressed': on ? 'true' : 'false', 'data-k': k || label, style: color ? '--chip:' + color : null, onclick: fn }, (on ? '✓ ' : '') + label);
+const chip = (label, on, fn, color, k) => h('button', { class: 'chip', type: 'button', 'aria-pressed': on ? 'true' : 'false', 'data-k': k || label, style: color ? '--chip:' + color : null, onclick: fn }, (on ? '✓ ' : '') + tr(label));
 const pill = (text, color) => h('span', { class: 'pill', style: '--pc:' + color }, text);
 const empty = (t, m, btn) => h('div', { class: 'empty' }, h('h3', null, t), h('p', { class: 'muted' }, m), btn || null);
 const btn = (label, fn, cls, extra) => h('button', Object.assign({ class: 'btn ' + (cls || ''), type: 'button', onclick: fn }, extra || {}), label);
-function backHeader(title, right) { return h('div', { class: 'header' }, h('button', { class: 'back', type: 'button', onclick: back }, '‹ Back'), h('div', { class: 'title' }, title), right || h('div', { class: 'spacer' })); }
+function backHeader(title, right) { return h('div', { class: 'header' }, h('button', { class: 'back', type: 'button', onclick: back }, (LANG === 'ar' ? '› ' : '‹ ') + t('Back')), h('div', { class: 'title' }, title), right || h('div', { class: 'spacer' })); }
 const needsConsentGate = () => !(ui.consent.age && ui.consent.terms);
 
 function oppCard(o) {
   const saved = mySaved().includes(o.id), done = myDone().includes(o.id);
-  return h('button', { class: 'card opp', type: 'button', style: '--cat:' + (CAT_COLOR[o.category] || '#22D3EE'), onclick: () => go({ name: 'detail', id: o.id }), 'aria-label': o.title + ', ' + o.org + ', ' + o.category + (done ? ', completed' : saved ? ', saved' : '') },
+  return h('button', { class: 'card opp', type: 'button', style: '--cat:' + (CAT_COLOR[o.category] || '#22D3EE'), onclick: () => go({ name: 'detail', id: o.id }), 'aria-label': o.title + ', ' + o.org + ', ' + tr(o.category) + (done ? ', ' + t('completed') : saved ? ', ' + t('saved') : '') },
     h('div', { class: 'row tight' }, pill(o.category, CAT_COLOR[o.category] || '#22D3EE'), o.deadline ? pill('Deadline', 'var(--warn)') : null, done ? pill('Done', 'var(--good)') : saved ? pill('Saved', '#A78BFA') : null),
-    h('h3', null, o.title), h('div', { class: 'muted small' }, o.org + '  •  ' + o.mode + '  •  ' + o.cost),
-    h('div', { class: 'muted small' }, o.lastVerified ? 'Source checked ' + o.lastVerified : 'Not checked by Beyond yet'));
+    h('h3', null, o.title), h('div', { class: 'muted small' }, o.org + '  •  ' + tr(o.mode) + '  •  ' + tr(o.cost)),
+    h('div', { class: 'muted small' }, o.lastVerified ? t('Source checked {d}', { d: o.lastVerified }) : t('Not checked by Beyond yet')));
 }
 function miniOpp(o) {
-  return h('button', { class: 'mini', type: 'button', onclick: () => go({ name: 'detail', id: o.id }), 'aria-label': 'Open opportunity: ' + o.title }, h('span', { class: 'bar', style: 'background:' + (CAT_COLOR[o.category] || '#22D3EE') }), h('span', null, h('b', null, o.title), h('span', { class: 'muted small', style: 'display:block' }, o.org)));
+  return h('button', { class: 'mini', type: 'button', onclick: () => go({ name: 'detail', id: o.id }), 'aria-label': t('Open opportunity: {title}', { title: o.title }) }, h('span', { class: 'bar', style: 'background:' + (CAT_COLOR[o.category] || '#22D3EE') }), h('span', null, h('b', null, o.title), h('span', { class: 'muted small', style: 'display:block' }, o.org)));
 }
 function personRow(u) {
   const f = isFollowing(u.id);
   return h('div', { class: 'person' },
-    h('button', { class: 'person-main', type: 'button', onclick: () => go({ name: 'user', id: u.id }), 'aria-label': 'Open profile of ' + (u.display_name || u.username) }, avatar(u, 48), h('span', null, h('b', null, u.display_name || '@' + u.username), h('span', { class: 'muted small', style: 'display:block' }, '@' + u.username + (u.is_demo ? ' • Demo' : '')))),
+    h('button', { class: 'person-main', type: 'button', onclick: () => go({ name: 'user', id: u.id }), 'aria-label': t('Open profile of {name}', { name: u.display_name || u.username }) }, avatar(u, 48), h('span', null, h('b', null, utext(u.display_name || '@' + u.username)), h('span', { class: 'muted small', style: 'display:block' }, utext('@' + u.username + (u.is_demo ? ' • ' + t('Demo') : ''))))),
     u.id === myId() ? null : h('button', { class: 'btn small-btn' + (f ? '' : ' primary'), type: 'button', 'aria-pressed': String(f), onclick: () => toggleFollow(u.id) }, f ? 'Following' : 'Follow'));
 }
 
@@ -69,9 +69,9 @@ function postCard(p, full) {
   const menuOpen = ui.menu && ui.menu.id === p.id;
   return h('article', { class: 'post' },
     h('div', { class: 'post-head' },
-      h('button', { class: 'person-main', type: 'button', onclick: () => go({ name: 'user', id: a.id }), 'aria-label': 'Open profile of ' + (a.display_name || a.username) }, avatar(a, 40), h('span', null, h('b', null, a.display_name || '@' + a.username), h('span', { class: 'muted small', style: 'display:block' }, '@' + a.username + ' • ' + ago(p.created_at)))),
+      h('button', { class: 'person-main', type: 'button', onclick: () => go({ name: 'user', id: a.id }), 'aria-label': t('Open profile of {name}', { name: a.display_name || a.username }) }, avatar(a, 40), h('span', null, h('b', null, utext(a.display_name || '@' + a.username)), h('span', { class: 'muted small', style: 'display:block' }, utext('@' + a.username + ' • ' + ago(p.created_at))))),
       pill(p.type, TYPE_COLOR[p.type] || '#22D3EE'), a.is_demo ? pill('Demo', 'var(--warn)') : null),
-    h(full ? 'div' : 'button', full ? { class: 'post-body' } : { class: 'post-body as-btn', type: 'button', onclick: () => go({ name: 'post', id: p.id }), 'aria-label': 'Open post and comments' }, p.body),
+    h(full ? 'div' : 'button', full ? { class: 'post-body' } : { class: 'post-body as-btn', type: 'button', onclick: () => go({ name: 'post', id: p.id }), 'aria-label': 'Open post and comments' }, utext(p.body)),
     o ? miniOpp(o) : null,
     h('div', { class: 'post-actions' },
       action('heart', liked ? 'Unlike' : 'Like', lc, liked, () => toggleLike(p.id), 'like-' + p.id),
@@ -87,6 +87,9 @@ function postCard(p, full) {
       btn('Hide this post', () => { hidden.add(p.id); try { localStorage.setItem('beyond:hidden', JSON.stringify([...hidden])); } catch (e) {} ui.menu = null; render(); toast('Hidden on this device.'); })) : null);
 }
 
+function langPicker() {
+  return h('div', { class: 'lang-pick' }, h('select', { id: 'lang-sel', 'aria-label': 'Language', onchange: (e) => setLang(e.target.value, true) }, LANGS.map(([c, n]) => h('option', { value: c, selected: c === LANG }, utext(n)))));
+}
 /* ---------- WELCOME / SIGN-IN / ONBOARDING ---------- */
 function consentBox(key, children) {
   return h('button', { class: 'check', type: 'button', role: 'checkbox', 'aria-checked': String(ui.consent[key]), onclick: (e) => { if (e.target.closest('.linklike')) return; ui.consent[key] = !ui.consent[key]; render(); } }, h('span', { class: 'box' }, ui.consent[key] ? '✓' : ''), h('span', null, children));
@@ -102,8 +105,8 @@ function consentBlock() {
     : btn('Let’s go beyond', async () => { await LocalAPI.createLocalUser(); await refresh(); ui.stack = []; ui.focus = true; render(); }, 'primary', { disabled: blocked });
   return h('div', null,
     h('h2', null, 'Before you start'),
-    consentBox('age', 'I am at least ' + (OWNER.minAge || 13) + ' years old.'),
-    consentBox('terms', ['I have read the ', lk('Privacy Policy', 'privacy'), ' and the ', lk('Terms of Service', 'terms'), '.']),
+    consentBox('age', t('I am at least {n} years old.', { n: OWNER.minAge || 13 })),
+    consentBox('terms', tpl('I have read the {privacy} and the {terms}.', { privacy: lk(t('Privacy Policy'), 'privacy'), terms: lk(t('Terms of Service'), 'terms') })),
     main,
     LIVE ? h('p', { class: 'muted small', style: 'margin-top:10px' }, 'Beyond receives your name and email from Google to create your account. Your email is never shown to other people. We never post for you.') : h('p', { class: 'muted small', style: 'margin-top:10px' }, 'This preview keeps everything on this device. Google sign-in is switched on when the site is connected to Supabase.'),
     blocked ? h('p', { class: 'muted small' }, 'Tick both boxes to continue.') : null,
@@ -111,7 +114,7 @@ function consentBlock() {
 }
 function welcome() {
   if (ui.wStep === 0) return h('div', { class: 'welcome-hero' },
-    h('div', { class: 'brand' }, 'BEYOND'), h('h1', { tabindex: '-1' }, 'There’s more to your story than a grade.'),
+    langPicker(), h('div', { class: 'brand' }, 'BEYOND'), h('h1', { tabindex: '-1' }, 'There’s more to your story than a grade.'),
     h('p', { class: 'muted' }, 'Find things worth doing, meet people building their own path, and keep track of what you try. Beyond is free to use.'),
     btn('What’s your Beyond?', () => { ui.wStep = 1; ui.focus = true; render(); }, 'primary', { style: 'margin-top:24px' }));
   return h('div', null, h('div', { class: 'brand' }, 'BEYOND'), h('h1', { tabindex: '-1', style: 'margin-top:8px' }, 'Join the Beyonders'), h('p', { class: 'muted' }, 'Create your profile, post what you’re working on, and follow people who inspire you.'), consentBlock());
@@ -143,8 +146,8 @@ function home() {
   const recs = recommend(interests, myDone(), 4);
   const pending = mySaved().filter((id) => !myDone().includes(id)).map(getOpp).filter(Boolean).slice(0, 3);
   const latest = S.posts.filter((p) => !hidden.has(p.id)).slice(0, 2);
-  return h('div', null, h('div', { class: 'brand' }, 'BEYOND'), h('h1', { tabindex: '-1', style: 'margin-top:8px' }, 'Hey ' + name + '.'), h('p', { class: 'muted' }, 'What’s your Beyond today?'),
-    me ? h('button', { class: 'card quest', type: 'button', onclick: () => setTab('profile'), 'aria-label': 'Your current quest. Open profile to change it.' }, h('div', { class: 'label' }, 'Current quest'), h('div', { class: 'quest-text' }, me.quest || 'What are you trying to explore right now? Set your quest.'))
+  return h('div', null, h('div', { class: 'brand' }, 'BEYOND'), h('h1', { tabindex: '-1', style: 'margin-top:8px' }, t('Hey {name}.', { name })), h('p', { class: 'muted' }, 'What’s your Beyond today?'),
+    me ? h('button', { class: 'card quest', type: 'button', onclick: () => setTab('profile'), 'aria-label': 'Your current quest. Open profile to change it.' }, h('div', { class: 'label' }, 'Current quest'), h('div', { class: 'quest-text' }, me.quest ? utext(me.quest) : 'What are you trying to explore right now? Set your quest.'))
       : h('div', { class: 'card quest' }, h('div', { class: 'label' }, 'You are browsing as a guest'), h('p', { style: 'margin:6px 0 0' }, 'Sign in to save things, post and follow people.'), btn('Sign in', () => go({ name: 'signin' }), 'primary')),
     h('h2', null, interests.length ? 'Picked for your interests' : 'Your next move'), interests.length ? null : h('p', { class: 'muted' }, 'Add interests in your profile to get better picks.'),
     recs.map(oppCard),
@@ -160,15 +163,15 @@ function explore() {
   function draw() {
     const n = needle(); let items = [];
     if (ui.exploreTab === 'opps') {
-      const res = S.opps.filter((o) => o.published !== false && (!ui.cat || o.category === ui.cat) && (!ui.free || o.cost === 'Free' || o.cost === 'Funded') && (!ui.arab || (o.tags || []).includes('arab')) && (!n || [o.title, o.org, o.descr, o.category, o.grade, o.eligibility].concat(o.tags || []).join(' ').toLowerCase().includes(n)));
-      items = res.length ? res.map(oppCard) : [empty('No match yet', 'Try a different word or clear a filter.')]; count.textContent = res.length + ' opportunit' + (res.length === 1 ? 'y' : 'ies');
+      const res = S.opps.filter((o) => o.published !== false && (!ui.cat || o.category === ui.cat) && (!ui.free || o.cost === 'Free' || o.cost === 'Funded') && (!ui.arab || (o.tags || []).includes('arab')) && (!n || [o.title, o.org, o.descr, o.category, tr(o.category), o.grade, o.eligibility].concat(o.tags || []).join(' ').toLowerCase().includes(n)));
+      items = res.length ? res.map(oppCard) : [empty('No match yet', 'Try a different word or clear a filter.')]; count.textContent = tn('{n} opportunity', '{n} opportunities', res.length);
       filtersRow.replaceChildren(h('div', { class: 'row' }, CATEGORIES.map((c) => chip(c, ui.cat === c, () => { ui.cat = ui.cat === c ? null : c; draw(); }, CAT_COLOR[c], 'cat-' + c))), h('div', { class: 'row' }, chip('Free or funded', ui.free, () => { ui.free = !ui.free; draw(); }, null, 'free'), chip('Arab region', ui.arab, () => { ui.arab = !ui.arab; draw(); }, null, 'arab')));
     } else if (ui.exploreTab === 'people') {
       const res = S.profiles.filter((u) => u.id !== myId() && (!n || [u.display_name, u.username, u.bio].concat(u.interests || []).join(' ').toLowerCase().includes(n)));
-      items = res.length ? res.map(personRow) : [empty('No people found', S.me || !LIVE ? 'As more Beyonders join, you will find them here.' : 'Sign in to find people.')]; count.textContent = res.length + ' people'; filtersRow.replaceChildren();
+      items = res.length ? res.map(personRow) : [empty('No people found', S.me || !LIVE ? 'As more Beyonders join, you will find them here.' : 'Sign in to find people.')]; count.textContent = t('{n} people', { n: res.length }); filtersRow.replaceChildren();
     } else {
       const res = S.posts.filter((p) => !hidden.has(p.id) && (!n || p.body.toLowerCase().includes(n)));
-      items = res.length ? res.map((p) => postCard(p)) : [empty('No posts found', S.me || !LIVE ? 'Try another word.' : 'Sign in to see posts.')]; count.textContent = res.length + ' post' + (res.length === 1 ? '' : 's'); filtersRow.replaceChildren();
+      items = res.length ? res.map((p) => postCard(p)) : [empty('No posts found', S.me || !LIVE ? 'Try another word.' : 'Sign in to see posts.')]; count.textContent = tn('{n} post', '{n} posts', res.length); filtersRow.replaceChildren();
     }
     results.replaceChildren(...items);
     const k = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k; if (k) { const a = document.querySelector('[data-k="' + k.replace(/"/g, '') + '"]'); if (a) a.focus(); }
@@ -185,17 +188,17 @@ function explore() {
 /* ---------- OPPORTUNITY DETAIL ---------- */
 function detail(id) {
   const o = getOpp(id); if (!o) return h('div', null, backHeader('Opportunity'), h('p', null, 'This opportunity could not be found.'));
-  const kv = (k, v) => h('div', { class: 'kv' }, h('span', null, k), h('span', null, v || NS));
+  const kv = (k, v) => h('div', { class: 'kv' }, h('span', null, k), h('span', null, tr(v || NS)));
   const saved = mySaved().includes(id), done = myDone().includes(id), about = S.posts.filter((p) => p.opp_id === id && !hidden.has(p.id));
   return h('div', null, backHeader('Opportunity'),
     h('div', { class: 'row' }, pill(o.category, CAT_COLOR[o.category] || '#22D3EE'), o.featured ? pill('Featured', 'var(--accent)') : null),
     h('h1', { tabindex: '-1' }, o.title), h('p', { class: 'muted' }, o.org),
     o.url && safeUrl(o.url) ? h('a', { class: 'btn primary', href: o.url, target: '_blank', rel: 'noopener noreferrer' }, 'Visit official website ↗') : null,
     h('h2', null, 'About'), h('p', null, o.descr),
-    h('h2', null, 'Details'), kv('Mode', o.mode), kv('Cost', o.cost), kv('Grade / age', o.grade), kv('Eligibility', o.eligibility), kv('Deadline', o.deadline),
-    h('h2', null, 'Source'), h('p', null, 'Organization: ' + o.org),
-    o.url && safeUrl(o.url) ? h('p', { class: 'muted', style: 'overflow-wrap:anywhere' }, 'Official page: ' + o.url) : h('p', { class: 'muted' }, 'No official link has been added for this entry yet.'),
-    h('p', { class: 'muted' }, o.lastVerified ? 'Beyond read this official page on ' + o.lastVerified + '. Details may have changed since.' : 'Not checked by Beyond yet.'),
+    h('h2', null, 'Details'), kv('Mode', tr(o.mode)), kv('Cost', tr(o.cost)), kv('Grade / age', tr(o.grade)), kv('Eligibility', tr(o.eligibility)), kv('Deadline', o.deadline),
+    h('h2', null, 'Source'), h('p', null, t('Organization: {org}', { org: o.org })),
+    o.url && safeUrl(o.url) ? h('p', { class: 'muted', style: 'overflow-wrap:anywhere' }, t('Official page: {url}', { url: o.url })) : h('p', { class: 'muted' }, 'No official link has been added for this entry yet.'),
+    h('p', { class: 'muted' }, o.lastVerified ? t('Beyond read this official page on {d}. Details may have changed since.', { d: o.lastVerified }) : t('Not checked by Beyond yet.')),
     h('p', { class: 'muted small' }, 'The summary above is written by Beyond from the official page. “Not stated” means the page did not say. Always confirm on the official page before you apply. Beyond does not guarantee acceptance, scholarships, admission or any other outcome.'),
     h('button', { class: 'btn', type: 'button', 'data-k': 'save', 'aria-pressed': String(saved), onclick: () => toggleSaveOpp(id) }, saved ? 'Saved (tap to remove)' : 'Save for later'),
     h('button', { class: 'btn', type: 'button', 'data-k': 'done', 'aria-pressed': String(done), onclick: () => toggleDoneOpp(id) }, done ? 'Marked as done (tap to undo)' : 'I did this'),
@@ -223,9 +226,9 @@ function composeView(r) {
   const chips = h('div', { class: 'row' }), err = h('p', { class: 'err', 'aria-live': 'polite' }), cnt = h('span', { class: 'muted small' }, '0 / 500');
   const draw = () => chips.replaceChildren(...POST_TYPES.map((t) => chip(t, d.type === t, () => { d.type = t; draw(); }, TYPE_COLOR[t], 'ty-' + t)));
   draw();
-  const sel = h('select', { id: 'c-opp', onchange: (e) => { d.opp = e.target.value; } }, h('option', { value: '' }, 'None'), S.opps.map((o) => h('option', { value: o.id, selected: o.id === d.opp }, o.title)));
+  const sel = h('select', { id: 'c-opp', onchange: (e) => { d.opp = e.target.value; } }, h('option', { value: '' }, t('None')), S.opps.map((o) => h('option', { value: o.id, selected: o.id === d.opp }, o.title)));
   const post = btn('Post', async () => {
-    const body = d.body.trim(); if (body.length < 1) { err.textContent = 'Write something first.'; return; }
+    const body = d.body.trim(); if (body.length < 1) { err.textContent = t('Write something first.'); return; }
     post.disabled = true;
     try {
       const row = { author_id: myId(), type: d.type, body, opp_id: d.opp || null };
@@ -247,15 +250,15 @@ function postView(id) {
     if (!requireAuth()) return; const body = input.value.trim(); if (!body) return; send.disabled = true;
     try { const row = await API.insert('comments', { post_id: id, author_id: myId(), body }, true); S.comments = S.comments.concat(Object.assign({ created_at: nowIso() }, row)); render(); } catch (e) { send.disabled = false; err.textContent = errText(e); }
   }, 'primary');
-  return h('div', null, backHeader('Post'), postCard(p, true), h('h2', null, commentsOf(id).length + ' comment' + (list.length === 1 ? '' : 's')),
-    list.map((c) => { const a = getUser(c.author_id) || { display_name: 'Beyonder', username: 'unknown' }; return h('div', { class: 'comment' }, h('button', { class: 'plain', type: 'button', onclick: () => go({ name: 'user', id: a.id }), 'aria-label': 'Open profile of ' + (a.display_name || a.username) }, avatar(a, 32)), h('div', { style: 'min-width:0' }, h('b', { class: 'small' }, a.display_name || '@' + a.username), h('span', { class: 'muted small' }, '  ' + ago(c.created_at)), h('div', { class: 'cbody' }, c.body))); }),
+  return h('div', null, backHeader('Post'), postCard(p, true), h('h2', null, tn('{n} comment', '{n} comments', list.length)),
+    list.map((c) => { const a = getUser(c.author_id) || { display_name: 'Beyonder', username: 'unknown' }; return h('div', { class: 'comment' }, h('button', { class: 'plain', type: 'button', onclick: () => go({ name: 'user', id: a.id }), 'aria-label': t('Open profile of {name}', { name: a.display_name || a.username }) }, avatar(a, 32)), h('div', { style: 'min-width:0' }, h('b', { class: 'small' }, utext(a.display_name || '@' + a.username)), h('span', { class: 'muted small' }, utext('  ' + ago(c.created_at))), h('div', { class: 'cbody' }, utext(c.body)))); }),
     h('div', { class: 'cmt-row' }, input, send), err);
 }
 
 /* ---------- PROFILE (TikTok style) ---------- */
 function statBlock(n, label) { return h('div', { class: 'stat' }, h('b', null, compact(n)), h('span', null, label)); }
 function tile(p) {
-  return h('button', { class: 'tile', type: 'button', onclick: () => go({ name: 'post', id: p.id }), 'aria-label': p.type + ' post: ' + p.body.slice(0, 80), style: '--tc:' + (TYPE_COLOR[p.type] || '#22D3EE') }, h('span', { class: 'ttype' }, p.type), h('span', { class: 'tbody' }, p.body), h('span', { class: 'tlikes' }, icon('heart', 14, true), compact(likeCount(p.id))));
+  return h('button', { class: 'tile', type: 'button', onclick: () => go({ name: 'post', id: p.id }), 'aria-label': t('{type} post: {body}', { type: tr(p.type), body: p.body.slice(0, 80) }), style: '--tc:' + (TYPE_COLOR[p.type] || '#22D3EE') }, h('span', { class: 'ttype' }, p.type), h('span', { class: 'tbody' }, utext(p.body)), h('span', { class: 'tlikes' }, icon('heart', 14, true), compact(likeCount(p.id))));
 }
 function oppTile(o) {
   return h('button', { class: 'tile otile', type: 'button', onclick: () => go({ name: 'detail', id: o.id }), 'aria-label': o.title, style: '--tc:' + (CAT_COLOR[o.category] || '#22D3EE') }, h('span', { class: 'ttype' }, o.category), h('span', { class: 'tbody' }, o.title), h('span', { class: 'tlikes' }, o.org));
@@ -270,17 +273,17 @@ function profileView(u, isMe) {
   else if (ui.profTab === 'saved') { const l = mySaved().map(getOpp).filter(Boolean); grid = l.length ? l.map(oppTile) : [empty('Nothing saved yet', 'Saved means “maybe”. Tap Save on an opportunity.')]; }
   else { const l = myDone().map(getOpp).filter(Boolean); grid = l.length ? l.map(oppTile) : [empty('Nothing completed yet', 'Finished something? Mark it as done and it shows up here.')]; }
   const bar = isMe
-    ? h('div', { class: 'header' }, h('div', { class: 'spacer' }), h('h1', { class: 'handle', tabindex: '-1' }, '@' + u.username), h('button', { class: 'back', style: 'text-align:right', type: 'button', 'aria-label': 'Menu: settings, privacy and legal', onclick: () => go({ name: 'settings' }) }, icon('menu', 26)))
-    : h('div', { class: 'header' }, h('button', { class: 'back', type: 'button', onclick: back }, '‹ Back'), h('h1', { class: 'handle', tabindex: '-1' }, '@' + u.username), h('div', { class: 'spacer' }));
+    ? h('div', { class: 'header' }, h('div', { class: 'spacer' }), h('h1', { class: 'handle', tabindex: '-1' }, utext('@' + u.username)), h('button', { class: 'back', style: 'text-align:end', type: 'button', 'aria-label': 'Menu: settings, privacy and legal', onclick: () => go({ name: 'settings' }) }, icon('menu', 26)))
+    : h('div', { class: 'header' }, h('button', { class: 'back', type: 'button', onclick: back }, (LANG === 'ar' ? '› ' : '‹ ') + t('Back')), h('h1', { class: 'handle', tabindex: '-1' }, utext('@' + u.username)), h('div', { class: 'spacer' }));
   return h('div', null, bar,
-    h('div', { class: 'ptop' }, avatar(u, 96), h('div', { class: 'pname' }, u.display_name || '@' + u.username), u.is_demo ? pill('Demo account', 'var(--warn)') : null,
+    h('div', { class: 'ptop' }, avatar(u, 96), h('div', { class: 'pname' }, utext(u.display_name || '@' + u.username)), u.is_demo ? pill('Demo account', 'var(--warn)') : null,
       h('div', { class: 'stats' }, statBlock(followingOf(u.id).length, 'Following'), statBlock(followersOf(u.id).length, 'Followers'), statBlock(likesReceived(u.id), 'Likes')),
       h('div', { class: 'pbtns' },
         isMe ? btn('Edit profile', () => go({ name: 'edit' }), 'sec') : h('button', { class: 'btn ' + (f ? 'sec' : 'primary'), type: 'button', 'aria-pressed': String(f), onclick: () => toggleFollow(u.id) }, f ? 'Following' : 'Follow'),
         btn('Share profile', () => copyText(location.origin + location.pathname + ' (@' + u.username + ' on Beyond)', 'Copied'), 'sec'),
         isMe ? h('button', { class: 'btn sec icon-btn', type: 'button', 'aria-label': 'Create a post', onclick: () => go({ name: 'compose' }) }, icon('plus', 22)) : null),
-      u.bio ? h('p', { class: 'pbio' }, u.bio) : (isMe ? h('p', { class: 'pbio muted' }, 'Add a bio so people know who you are.') : null),
-      u.quest ? h('div', { class: 'pquest' }, h('span', { class: 'label' }, 'Current quest'), h('span', null, u.quest)) : null,
+      u.bio ? h('p', { class: 'pbio' }, utext(u.bio)) : (isMe ? h('p', { class: 'pbio muted' }, 'Add a bio so people know who you are.') : null),
+      u.quest ? h('div', { class: 'pquest' }, h('span', { class: 'label' }, 'Current quest'), h('span', null, utext(u.quest))) : null,
       (u.interests || []).length || u.stage ? h('div', { class: 'row center' }, u.stage ? pill(u.stage, 'var(--accent)') : null, (u.interests || []).map((i) => pill(i, 'var(--line)'))) : null),
     h('div', { class: 'ptabs', role: 'tablist' }, tabsDef.map(([k, ic, l]) => h('button', { type: 'button', role: 'tab', 'aria-label': l, 'aria-selected': String(ui.profTab === k), onclick: () => { ui.profTab = k; render(); } }, icon(ic, 24)))),
     h('div', { class: 'grid' }, grid));
@@ -300,13 +303,13 @@ function editProfile() {
   const file = h('input', { type: 'file', id: 'avatar-file', accept: 'image/*', hidden: true, onchange: async (e) => { try { const r = await resizeImage(e.target.files[0], 320); d.blob = r.blob; d.avatar_url = r.dataUrl; drawAv(); err.textContent = ''; } catch (x) { err.textContent = errText(x); } } });
   const fld = (id, label, el) => [h('h2', null, h('label', { for: id }, label)), el];
   const save = btn('Save', async () => {
-    const un = slug(d.username); if (!/^[a-z0-9_.]{3,24}$/.test(un)) { err.textContent = 'Username needs 3 to 24 letters, numbers, dots or underscores.'; return; }
+    const un = slug(d.username); if (!/^[a-z0-9_.]{3,24}$/.test(un)) { err.textContent = t('Username needs 3 to 24 letters, numbers, dots or underscores.'); return; }
     save.disabled = true; err.textContent = '';
     try {
       let url = d.avatar_url; if (d.blob) url = await API.uploadAvatar(d.blob, m.id, d.avatar_url);
       await updateMe({ display_name: d.display_name.trim(), username: un, bio: d.bio.trim(), quest: d.quest.trim(), stage: d.stage, interests: d.interests, avatar_url: url });
       back(); toast('Profile saved.');
-    } catch (e) { save.disabled = false; err.textContent = e && e.code === '23505' ? 'That username is taken. Try another.' : errText(e); }
+    } catch (e) { save.disabled = false; err.textContent = e && e.code === '23505' ? t('That username is taken. Try another.') : errText(e); }
   }, 'primary');
   return h('div', null, backHeader('Edit profile'),
     h('div', { class: 'ed-top' }, av, file, h('button', { class: 'btn sec', type: 'button', onclick: () => file.click() }, h('span', { class: 'inline-ic' }, icon('camera', 20), 'Change photo')),
@@ -314,7 +317,7 @@ function editProfile() {
     h('p', { class: 'muted small' }, 'Your profile is visible to other Beyonders. Your email is never shown.'),
     fld('e-name', 'Name', h('input', { type: 'text', id: 'e-name', maxlength: '40', value: d.display_name, oninput: (e) => { d.display_name = e.target.value; } })),
     fld('e-user', 'Username', h('input', { type: 'text', id: 'e-user', maxlength: '24', value: d.username, autocapitalize: 'none', oninput: (e) => { d.username = e.target.value; } })),
-    fld('e-bio', 'Bio', h('textarea', { id: 'e-bio', maxlength: '160', placeholder: 'A line about you', oninput: (e) => { d.bio = e.target.value; } }, d.bio)),
+    fld('e-bio', 'Bio', h('textarea', { id: 'e-bio', maxlength: '160', placeholder: 'A line about you', oninput: (e) => { d.bio = e.target.value; } }, utext(d.bio))),
     fld('e-quest', 'Current quest', h('input', { type: 'text', id: 'e-quest', maxlength: '120', placeholder: 'What are you exploring right now?', value: d.quest, oninput: (e) => { d.quest = e.target.value; } })),
     h('h2', null, 'Where are you now?'), stageRow, h('h2', null, 'Interests'), intRow, save, err);
 }
@@ -336,9 +339,9 @@ function settings() {
     h('div', { class: 'card' }, h('p', { style: 'margin:0' }, LIVE ? 'Your data is stored in Beyond’s database (hosted by Supabase). We do not sell it or use it for ads or tracking.' : 'This preview keeps everything on this device only. Nothing is sent anywhere.')),
     memoryOnly ? h('div', { class: 'notice' }, 'Your browser is blocking storage, so changes will be lost when you close this page.') : null,
     S.me ? [h('h2', null, 'Account'), btn('Edit profile', () => go({ name: 'edit' })), LIVE ? btn('Sign out', async () => { await API.signOut(); ui.stack = []; ui.tab = 'home'; await refresh(); ui.focus = true; render(); }) : null] : null,
-    h('h2', null, 'Read the details'), doc('Privacy Policy', 'privacy'), doc('Terms of Service', 'terms'), doc('Cookies & tracking', 'cookies'), doc('Pricing & refunds', 'pricing'),
+    h('h2', null, 'Language'), langPicker(), h('h2', null, 'Read the details'), doc('Privacy Policy', 'privacy'), doc('Terms of Service', 'terms'), doc('Cookies & tracking', 'cookies'), doc('Pricing & refunds', 'pricing'),
     S.me ? [h('h2', null, 'Delete my data'), h('p', { class: 'muted' }, 'Removes your account and everything you added. This cannot be undone.'), box, err] : null,
-    h('h2', null, 'Contact'), h('p', { class: 'muted' }, 'Questions about privacy or your data: ' + todo(OWNER.contactEmail, 'contact email in config.js')));
+    h('h2', null, 'Contact'), h('p', { class: 'muted' }, t('Questions about privacy or your data: {email}', { email: todo(OWNER.contactEmail, 'contact email in config.js') })));
 }
 function legalDocs() {
   const em = todo(OWNER.contactEmail, 'contact email in config.js'), who = todo(OWNER.legalName, 'legal/owner name in config.js'), age = OWNER.minAge || 13, up = OWNER.updated || '';
@@ -383,7 +386,7 @@ function legalDocs() {
 }
 function legal(doc) {
   const d = legalDocs()[doc] || legalDocs().privacy;
-  return h('div', null, backHeader(d[0]), h('h1', { tabindex: '-1', style: 'font-size:1.6rem' }, d[0]), d[1].map(([t, b]) => [h('h2', null, t), h('p', null, b)]), h('p', { class: 'muted small', style: 'margin-top:24px' }, 'This is plain-language information, not legal advice. Have a lawyer review it before publishing.'));
+  return h('div', null, backHeader(d[0]), h('h1', { tabindex: '-1', style: 'font-size:1.6rem' }, d[0]), LANG !== 'en' ? h('div', { class: 'notice' }, 'The full legal text is shown in English so that nothing is lost in translation.') : null, d[1].map(([hd, b]) => [h('h2', null, utext(hd)), h('p', null, utext(b))]), h('p', { class: 'muted small', style: 'margin-top:24px' }, 'This is plain-language information, not legal advice. Have a lawyer review it before publishing.'));
 }
 
 /* ---------- ROUTER + RENDER ---------- */
@@ -404,7 +407,7 @@ function render() {
   else if (LIVE ? (!S.me && !ui.guest) : !S.me) view = welcome();
   else if (S.me && !S.me.onboarded) view = onboarding();
   else { view = { home, explore, feed, profile: profileTab }[ui.tab](); showTabs = true; }
-  app.replaceChildren(view); tabs.hidden = !showTabs;
+  app.replaceChildren(view); tabs.hidden = !showTabs; tabs.setAttribute('aria-label', t('Main navigation'));
   tabs.replaceChildren(h('div', { class: 'inner' }, [['home', 'Home'], ['explore', 'Explore'], ['feed', 'Feed'], ['profile', 'Profile']].map(([k, l]) => h('button', { type: 'button', 'aria-current': ui.tab === k ? 'page' : null, onclick: () => setTab(k) }, icon(k, 24), l))));
   if (ui.focus) { const hd = app.querySelector('h1'); if (hd) hd.focus({ preventScroll: true }); ui.focus = false; }
   else if (window.__lastKey) { const a = app.querySelector('[data-k="' + window.__lastKey.replace(/"/g, '') + '"]'); if (a) a.focus({ preventScroll: true }); }

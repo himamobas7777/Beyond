@@ -1,6 +1,7 @@
 /* main.js: boot */
 (async () => {
   try {
+    await initLang();
     await API.init();
     await refresh();
     // The database trigger normally creates the profile on first Google sign-in. If it lagged, create it here.

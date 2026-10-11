@@ -5,6 +5,7 @@ const LIVE = !!(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY);
 const todo = (v, label) => (String(v || 'TODO').startsWith('TODO') ? '[Owner: add ' + label + ']' : v);
 
 /* ---------- tiny DOM helper: text is always set as text, never as HTML ---------- */
+const TR_ATTRS = new Set(['placeholder', 'aria-label', 'title', 'alt']);
 function h(tag, attrs, ...kids) {
   const el = document.createElement(tag);
   for (const k in (attrs || {})) {
@@ -12,9 +13,9 @@ function h(tag, attrs, ...kids) {
     if (v === false || v == null) continue;
     if (k === 'class') el.className = v;
     else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
-    else el.setAttribute(k, v === true ? '' : v);
+    else el.setAttribute(k, v === true ? '' : (TR_ATTRS.has(k) ? tr(String(v)) : v));
   }
-  for (const kid of kids.flat(Infinity)) { if (kid == null || kid === false) continue; el.append(kid.nodeType ? kid : document.createTextNode(String(kid))); }
+  for (const kid of kids.flat(Infinity)) { if (kid == null || kid === false) continue; el.append(kid.nodeType ? kid : document.createTextNode(tr(String(kid)))); }
   return el;
 }
 const P = {
@@ -47,8 +48,8 @@ const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() 
 const nowIso = () => new Date().toISOString();
 function ago(iso) {
   const s = Math.max(1, (Date.now() - new Date(iso).getTime()) / 1000);
-  if (s < 60) return 'now'; if (s < 3600) return Math.floor(s / 60) + 'm'; if (s < 86400) return Math.floor(s / 3600) + 'h';
-  if (s < 604800) return Math.floor(s / 86400) + 'd'; return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  if (s < 60) return t('now'); if (s < 3600) return t('{n}m', { n: Math.floor(s / 60) }); if (s < 86400) return t('{n}h', { n: Math.floor(s / 3600) });
+  if (s < 604800) return t('{n}d', { n: Math.floor(s / 86400) }); return new Date(iso).toLocaleDateString(LOCALES[LANG] || undefined, { month: 'short', day: 'numeric' });
 }
 const compact = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : String(n));
 const safeUrl = (u) => typeof u === 'string' && (/^https:\/\//i.test(u) || /^data:image\/(jpeg|png|webp);base64,/i.test(u));
@@ -65,14 +66,14 @@ function avatar(user, size) {
 }
 function resizeImage(file, max) {
   return new Promise((resolve, reject) => {
-    if (!file || !/^image\//.test(file.type)) return reject(new Error('Please choose an image file.'));
+    if (!file || !/^image\//.test(file.type)) return reject(new Error(t('Please choose an image file.')));
     const url = URL.createObjectURL(file); const img = new Image();
     img.onload = () => {
       const r = Math.min(1, max / Math.max(img.width, img.height)); const w = Math.round(img.width * r), hh = Math.round(img.height * r);
       const c = document.createElement('canvas'); c.width = w; c.height = hh; c.getContext('2d').drawImage(img, 0, 0, w, hh); URL.revokeObjectURL(url);
-      c.toBlob((blob) => (blob ? resolve({ blob, dataUrl: c.toDataURL('image/jpeg', 0.85) }) : reject(new Error('Could not read that image.'))), 'image/jpeg', 0.85);
+      c.toBlob((blob) => (blob ? resolve({ blob, dataUrl: c.toDataURL('image/jpeg', 0.85) }) : reject(new Error(t('Could not read that image.')))), 'image/jpeg', 0.85);
     };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read that image.')); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error(t('Could not read that image.'))); };
     img.src = url;
   });
 }
@@ -117,7 +118,7 @@ const LocalAPI = {
 };
 
 /* ---------- LIVE data layer (Supabase) ---------- */
-function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Could not load a required script.')); document.head.append(s); }); }
+function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error(t('Could not load a required script.'))); document.head.append(s); }); }
 const SupaAPI = {
   mode: 'live', sb: null,
   async init() {
