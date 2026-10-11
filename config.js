@@ -9,7 +9,7 @@ window.BEYOND_CONFIG = {
   /* Owner details. Nothing is invented: anything starting with TODO shows as a marked placeholder. */
   OWNER: {
     legalName: 'Beyond Team',
-    contactEmail: 'TODO_OWNER_CONTACT_EMAIL',
+    contactEmail: 'basionyibrahim86@gmail.com',
     minAge: 13,            /* a starting default: confirm with a lawyer for the countries you serve */
     updated: '2026-10-11'
   }
