@@ -259,5 +259,7 @@ window.I18N.ar = {
   "{name} liked your comment": "أعجب {name} بتعليقك",
   "Central Asia": "آسيا الوسطى",
   "Your username will be @{u}. You can change it later in Edit profile.": "سيكون اسم المستخدم الخاص بك @{u}. يمكنك تغييره لاحقًا من تعديل الملف الشخصي.",
-  "Suggestions": "اقتراحات"
+  "Suggestions": "اقتراحات",
+  "{n} view": "{n} مشاهدة",
+  "{n} views": "{n} مشاهدة"
 };

@@ -259,5 +259,7 @@ window.I18N.zh = {
   "{name} liked your comment": "{name} 赞了你的评论",
   "Central Asia": "中亚",
   "Your username will be @{u}. You can change it later in Edit profile.": "你的用户名将是 @{u}。之后可以在编辑资料里修改。",
-  "Suggestions": "推荐"
+  "Suggestions": "推荐",
+  "{n} view": "{n} 次浏览",
+  "{n} views": "{n} 次浏览"
 };

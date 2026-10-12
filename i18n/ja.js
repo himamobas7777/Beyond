@@ -259,5 +259,7 @@ window.I18N.ja = {
   "{name} liked your comment": "{name}さんがあなたのコメントにいいねしました",
   "Central Asia": "中央アジア",
   "Your username will be @{u}. You can change it later in Edit profile.": "ユーザー名は @{u} になります。あとでプロフィール編集から変更できます。",
-  "Suggestions": "候補"
+  "Suggestions": "候補",
+  "{n} view": "{n}回表示",
+  "{n} views": "{n}回表示"
 };

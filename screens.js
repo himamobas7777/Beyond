@@ -62,13 +62,19 @@ function personRow(u) {
 }
 
 /* ---------- POST CARD ---------- */
+const viewTimers = {};
+const viewObserver = typeof IntersectionObserver === 'function' ? new IntersectionObserver((entries) => entries.forEach((en) => {
+  const id = en.target.dataset.pid; if (!id) return;
+  if (en.isIntersecting) { clearTimeout(viewTimers[id]); viewTimers[id] = setTimeout(() => trackView(id), 1000); } else clearTimeout(viewTimers[id]);
+}), { threshold: 0.5 }) : null;
+function updateViewCounts() { document.querySelectorAll('[data-views]').forEach((e) => { const n = viewCount(e.dataset.views); e.querySelector('.vn').textContent = compact(n); e.setAttribute('aria-label', tn('{n} view', '{n} views', n)); }); }
 function postCard(p, full) {
   const a = getUser(p.author_id) || { display_name: 'Beyonder', username: 'unknown' };
   const liked = iLiked(p.id), saved = iSavedPost(p.id), lc = likeCount(p.id), cc = commentsOf(p.id).length;
   const o = p.opp_id ? getOpp(p.opp_id) : null;
   const action = (ic, label, count, on, fn, k) => h('button', { class: 'act' + (on ? ' on' : ''), type: 'button', 'aria-label': label, 'aria-pressed': on == null ? null : String(!!on), 'data-k': k, onclick: fn }, icon(ic, 22, on), count == null ? null : h('span', null, compact(count)));
   const menuOpen = ui.menu && ui.menu.id === p.id;
-  return h('article', { class: 'post' },
+  const card = h('article', { class: 'post', 'data-pid': p.id },
     h('div', { class: 'post-head' },
       h('button', { class: 'person-main', type: 'button', onclick: () => go({ name: 'user', id: a.id }), 'aria-label': t('Open profile of {name}', { name: a.display_name || a.username }) }, avatar(a, 40), h('span', null, h('b', null, utext(a.display_name || '@' + a.username)), h('span', { class: 'muted small', style: 'display:block' }, utext('@' + a.username + ' • ' + ago(p.created_at))))),
       pill(p.type, TYPE_COLOR[p.type] || '#22D3EE'), a.is_demo ? pill('Demo', 'var(--warn)') : null),
@@ -78,7 +84,8 @@ function postCard(p, full) {
       action('heart', liked ? 'Unlike' : 'Like', lc, liked, () => toggleLike(p.id), 'like-' + p.id),
       action('comment', 'Comments', cc, null, () => go({ name: 'post', id: p.id }), 'cm-' + p.id),
       action('bookmark', saved ? 'Remove saved post' : 'Save post', null, saved, () => toggleSavePost(p.id), 'sv-' + p.id),
-      action('more', 'More options', null, null, () => { ui.menu = menuOpen ? null : { id: p.id, step: 0 }; render(); }, 'mo-' + p.id)),
+      action('more', 'More options', null, null, () => { ui.menu = menuOpen ? null : { id: p.id, step: 0 }; render(); }, 'mo-' + p.id),
+      h('span', { class: 'views', 'data-views': p.id, 'aria-label': tn('{n} view', '{n} views', viewCount(p.id)) }, icon('eye', 18), h('span', { class: 'vn' }, compact(viewCount(p.id))))),
     menuOpen ? h('div', { class: 'menu', role: 'group', 'aria-label': 'Post options' },
       btn('Copy text', () => { ui.menu = null; copyText(p.body, 'Copied'); render(); }),
       ui.menu.step === 0 ? btn('Report this post', () => { ui.menu.step = 1; render(); }) : btn('Confirm report', async () => {
@@ -86,6 +93,8 @@ function postCard(p, full) {
         try { await API.insert('reports', { post_id: p.id, reporter_id: myId(), reason: 'Reported from feed' }); toast('Thanks. We will review it.'); } catch (e) { toast(errText(e)); }
       }, 'danger'),
       btn('Hide this post', () => { hidden.add(p.id); try { localStorage.setItem('beyond:hidden', JSON.stringify([...hidden])); } catch (e) {} ui.menu = null; render(); toast('Hidden on this device.'); })) : null);
+  if (viewObserver) viewObserver.observe(card);
+  return card;
 }
 
 /* ---------- NOTIFICATIONS ---------- */
@@ -283,6 +292,7 @@ function composeView(r) {
 }
 function postView(id) {
   const p = S.posts.find((x) => x.id === id); if (!p) return h('div', null, backHeader('Post'), empty('Post not found', 'It may have been removed.'));
+  trackView(id);
   const list = commentsOf(id);
   const reply = ui.reply && ui.reply.postId === id ? ui.reply : null;
   const draft = ui.cdraft && ui.cdraft.id === id ? ui.cdraft.text : '';
@@ -417,9 +427,9 @@ function legalDocs() {
   return {
     privacy: ['Privacy Policy', live ? [
       ['Who we are', 'Beyond is run by ' + who + '. Contact: ' + em + '.'],
-      ['What we collect', 'From Google sign-in: your name and email address. From you: username, optional photo, bio, current quest, education stage, interests, posts, comments, likes, follows, saved and completed opportunities, and reports you file. We also record that you confirmed your age and accepted these policies, with the date.'],
+      ['What we collect', 'From Google sign-in: your name and email address. From you: username, optional photo, bio, current quest, education stage, interests, posts, comments, likes, follows, saved and completed opportunities, and reports you file. We also record that you confirmed your age and accepted these policies, with the date, and which posts you have viewed (only to count views).'],
       ['Why', 'Your email is used only to sign you in and contact you about your account. Everything else powers the features you use: your profile, the feed, recommendations and your history. We do not collect passwords, contacts, precise location or device identifiers.'],
-      ['Who can see what', 'Your name, username, photo, bio, quest, stage, interests and posts are visible to other signed-in Beyonders. Your email is never shown to other people.'],
+      ['Who can see what', 'Your name, username, photo, bio, quest, stage, interests and posts are visible to other signed-in Beyonders. Your email is never shown to other people. Posts show how many people viewed them, never who.'],
       ['Where it is stored', 'In a database, file storage and sign-in service provided by Supabase. Sign-in uses Google. Fonts load from Google Fonts and one code library loads from jsDelivr, which may receive your IP address and browser details when the page opens.'],
       ['Retention', 'We keep your data until you delete your account. Deleting your account removes your profile, photo, posts, comments, likes, follows, saved and completed items. Reports you filed about other content may be kept for safety review without your name attached where possible.'],
       ['Your rights and deletion', 'You can edit your profile at any time and delete your account in Settings, Privacy & data. For any other request, contact ' + em + '.'],
@@ -468,6 +478,7 @@ function routeView(r) {
   }
 }
 function render() {
+  if (viewObserver) viewObserver.disconnect();
   const app = $('#app'), tabs = $('#tabs'); let view, showTabs = false;
   const top = ui.stack[ui.stack.length - 1];
   if (!S.ready) view = h('div', { class: 'empty' }, 'Loading…');

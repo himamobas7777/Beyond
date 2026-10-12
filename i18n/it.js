@@ -259,5 +259,7 @@ window.I18N.it = {
   "{name} liked your comment": "A {name} piace il tuo commento",
   "Central Asia": "Asia centrale",
   "Your username will be @{u}. You can change it later in Edit profile.": "Il tuo nome utente sarà @{u}. Puoi cambiarlo più tardi in Modifica profilo.",
-  "Suggestions": "Suggerimenti"
+  "Suggestions": "Suggerimenti",
+  "{n} view": "{n} visualizzazione",
+  "{n} views": "{n} visualizzazioni"
 };

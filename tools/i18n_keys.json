@@ -258,5 +258,7 @@
  "{n} people",
  "{n} post",
  "{n} posts",
+ "{n} view",
+ "{n} views",
  "{type} post: {body}"
 ]

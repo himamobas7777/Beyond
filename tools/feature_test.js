@@ -40,6 +40,14 @@ const srv = http.createServer((q, r) => { let f = path.join(root, decodeURICompo
   ok(await page.evaluate(() => commentLikeCount(S.comments[0].id)) === 1, 'comment like counted');
   ok(await page.$eval('[data-k^="cl-"] >> nth=0', (e) => e.getAttribute('aria-pressed')) === 'true', 'like button pressed');
   await page.click('[data-k^="cl-"] >> nth=0'); ok(await page.evaluate(() => commentLikeCount(S.comments[0].id)) === 0, 'comment unlike');
+  // views: counted once, never for own posts, shows a number only
+  await page.waitForTimeout(2200);
+  ok(await page.evaluate(() => S.views['demo-p2']) === 1, 'opening a post counts one view');
+  await page.evaluate(() => { ui.stack = []; go({ name: 'post', id: 'demo-p2' }); }); await page.waitForTimeout(2200);
+  ok(await page.evaluate(() => S.views['demo-p2']) === 1, 'viewing again does not count twice');
+  const own = await page.evaluate(async () => { const r = await API.insert('posts', { author_id: S.me.id, type: 'Discovery', body: 'mine', opp_id: null }, true); S.posts = [r].concat(S.posts); trackView(r.id); await new Promise((x) => setTimeout(x, 2200)); return S.views[r.id] || 0; });
+  ok(own === 0, 'own posts are not counted');
+  ok((await page.textContent('[data-views]')).trim() === '1' && (await page.getAttribute('[data-views]', 'aria-label')) === '1 view', 'card shows only a number (1 view)');
   // followers lists
   await page.evaluate(() => { S.follows.push({ follower_id: S.me.id, following_id: 'beyond-demo' }, { follower_id: 'beyond-demo', following_id: S.me.id }); ui.stack = []; setTab('profile'); });
   await page.waitForSelector('button.stat'); const stats = await page.$$eval('button.stat', (e) => e.map((x) => x.textContent));

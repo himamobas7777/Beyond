@@ -259,5 +259,7 @@ window.I18N.de = {
   "{name} liked your comment": "{name} gefällt dein Kommentar",
   "Central Asia": "Zentralasien",
   "Your username will be @{u}. You can change it later in Edit profile.": "Dein Benutzername wird @{u}. Du kannst ihn später unter Profil bearbeiten ändern.",
-  "Suggestions": "Vorschläge"
+  "Suggestions": "Vorschläge",
+  "{n} view": "{n} Aufruf",
+  "{n} views": "{n} Aufrufe"
 };
