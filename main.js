@@ -11,4 +11,6 @@
   } catch (e) { S.error = errText(e); }
   S.ready = true;
   render();
+  setInterval(pollNotifications, 60000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pollNotifications(); });
 })();
