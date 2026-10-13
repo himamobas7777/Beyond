@@ -57,7 +57,7 @@ function miniOpp(o) {
 function personRow(u) {
   const f = isFollowing(u.id);
   return h('div', { class: 'person' },
-    h('button', { class: 'person-main', type: 'button', onclick: () => go({ name: 'user', id: u.id }), 'aria-label': t('Open profile of {name}', { name: u.display_name || u.username }) }, avatar(u, 48), h('span', null, h('b', null, utext(u.display_name || '@' + u.username)), h('span', { class: 'muted small', style: 'display:block' }, utext('@' + u.username + (u.is_demo ? ' • ' + t('Demo') : ''))))),
+    h('button', { class: 'person-main', type: 'button', onclick: () => go({ name: 'user', id: u.id }), 'aria-label': t('Open profile of {name}', { name: u.display_name || u.username }) }, avatar(u, 48), h('span', null, h('b', null, utext(u.display_name || '\u200E@' + u.username)), h('span', { class: 'muted small', style: 'display:block' }, utext('\u200E@' + u.username + (u.is_demo ? ' • ' + t('Demo') : ''))))),
     u.id === myId() ? null : h('button', { class: 'btn small-btn' + (f ? '' : ' primary'), type: 'button', 'aria-pressed': String(f), onclick: () => toggleFollow(u.id) }, f ? 'Following' : 'Follow'));
 }
 
@@ -76,7 +76,7 @@ function postCard(p, full) {
   const menuOpen = ui.menu && ui.menu.id === p.id;
   const card = h('article', { class: 'post', 'data-pid': p.id },
     h('div', { class: 'post-head' },
-      h('button', { class: 'person-main', type: 'button', onclick: () => go({ name: 'user', id: a.id }), 'aria-label': t('Open profile of {name}', { name: a.display_name || a.username }) }, avatar(a, 40), h('span', null, h('b', null, utext(a.display_name || '@' + a.username)), h('span', { class: 'muted small', style: 'display:block' }, utext('@' + a.username + ' • ' + ago(p.created_at))))),
+      h('button', { class: 'person-main', type: 'button', onclick: () => go({ name: 'user', id: a.id }), 'aria-label': t('Open profile of {name}', { name: a.display_name || a.username }) }, avatar(a, 40), h('span', null, h('b', null, utext(a.display_name || '\u200E@' + a.username)), h('span', { class: 'muted small', style: 'display:block' }, utext('\u200E@' + a.username + ' • ' + ago(p.created_at))))),
       pill(p.type, TYPE_COLOR[p.type] || '#22D3EE'), a.is_demo ? pill('Demo', 'var(--warn)') : null),
     h(full ? 'div' : 'button', full ? { class: 'post-body' } : { class: 'post-body as-btn', type: 'button', onclick: () => go({ name: 'post', id: p.id }), 'aria-label': 'Open post and comments' }, utext(p.body)),
     o ? miniOpp(o) : null,
@@ -112,7 +112,7 @@ async function pollNotifications() {
 }
 function notificationsView() {
   const markRead = (n) => { if (n.read_at) return; n.read_at = nowIso(); API.update('notifications', { id: n.id }, { read_at: n.read_at }).catch(() => {}); };
-  const text = (n, a) => t(n.type === 'like' ? (n.detail === 'comment' ? '{name} liked your comment' : '{name} liked your post') : n.type === 'comment' ? (n.detail === 'reply' ? '{name} replied to your comment' : '{name} commented on your post') : '{name} started following you', { name: (a && (a.display_name || '@' + a.username)) || t('Someone') });
+  const text = (n, a) => t(n.type === 'like' ? (n.detail === 'comment' ? '{name} liked your comment' : '{name} liked your post') : n.type === 'comment' ? (n.detail === 'reply' ? '{name} replied to your comment' : '{name} commented on your post') : '{name} started following you', { name: (a && (a.display_name || '\u200E@' + a.username)) || t('Someone') });
   const row = (n) => {
     const a = getUser(n.actor_id);
     return h('button', { class: 'notif' + (n.read_at ? '' : ' unread'), type: 'button', onclick: () => { markRead(n); updateBell(); if (n.type === 'follow') go({ name: 'user', id: n.actor_id }); else go({ name: 'post', id: n.post_id }); } },
@@ -165,7 +165,7 @@ function onboarding() {
     if (!list.length) { d.username = ''; sugBox.replaceChildren(); return; }
     if (!d.picked || !list.includes(d.username)) { d.username = list[0]; d.picked = false; }
     sugBox.replaceChildren(h('p', { class: 'muted small', style: 'margin:8px 0 6px' }, utext(t('Your username will be @{u}. You can change it later in Edit profile.', { u: d.username }))),
-      h('div', { class: 'row' }, list.map((u) => chip('@' + u, d.username === u, () => { d.username = u; d.picked = true; drawSug(); }, null, 'su-' + u))));
+      h('div', { class: 'row' }, list.map((u) => chip('\u200E@' + u, d.username === u, () => { d.username = u; d.picked = true; drawSug(); }, null, 'su-' + u))));
   };
   const draw = () => chips.replaceChildren(...INTERESTS.map((i) => chip(i, d.interests.includes(i), () => { d.interests = d.interests.includes(i) ? d.interests.filter((x) => x !== i) : d.interests.concat(i); draw(); })));
   draw(); drawSug();
@@ -306,7 +306,7 @@ function postView(id) {
     } catch (e) { send.disabled = false; err.textContent = errText(e); }
   }, 'primary');
   const one = (c, isReply) => {
-    const a = getUser(c.author_id) || { display_name: 'Beyonder', username: 'unknown' }, nm = a.display_name || '@' + a.username;
+    const a = getUser(c.author_id) || { display_name: 'Beyonder', username: 'unknown' }, nm = a.display_name || '\u200E@' + a.username;
     const liked = iLikedComment(c.id), lc = commentLikeCount(c.id);
     return h('div', { class: 'comment' + (isReply ? ' reply' : '') },
       h('button', { class: 'plain', type: 'button', onclick: () => go({ name: 'user', id: a.id }), 'aria-label': t('Open profile of {name}', { name: nm }) }, avatar(a, isReply ? 26 : 32)),
@@ -329,7 +329,7 @@ function peopleView(r) {
   const tab = r.tab || 'followers';
   const list = (tab === 'followers' ? followersOf(u.id).map((f) => getUser(f.follower_id)) : followingOf(u.id).map((f) => getUser(f.following_id))).filter(Boolean);
   const seg = h('div', { class: 'seg', role: 'tablist' }, [['followers', 'Followers', followersOf(u.id).length], ['following', 'Following', followingOf(u.id).length]].map(([k, l, n]) => h('button', { type: 'button', role: 'tab', 'aria-selected': String(tab === k), onclick: () => { r.tab = k; render(); } }, tr(l) + ' ' + n)));
-  return h('div', null, backHeader(utext('@' + u.username)), seg, list.length ? list.map(personRow) : empty(tab === 'followers' ? 'No followers yet' : 'Not following anyone yet', ''));
+  return h('div', null, backHeader(utext('\u200E@' + u.username)), seg, list.length ? list.map(personRow) : empty(tab === 'followers' ? 'No followers yet' : 'Not following anyone yet', ''));
 }
 function tile(p) {
   return h('button', { class: 'tile', type: 'button', onclick: () => go({ name: 'post', id: p.id }), 'aria-label': t('{type} post: {body}', { type: tr(p.type), body: p.body.slice(0, 80) }), style: '--tc:' + (TYPE_COLOR[p.type] || '#22D3EE') }, h('span', { class: 'ttype' }, p.type), h('span', { class: 'tbody' }, utext(p.body)), h('span', { class: 'tlikes' }, icon('heart', 14, true), compact(likeCount(p.id))));
@@ -347,10 +347,10 @@ function profileView(u, isMe) {
   else if (ui.profTab === 'saved') { const l = mySaved().map(getOpp).filter(Boolean); grid = l.length ? l.map(oppTile) : [empty('Nothing saved yet', 'Saved means “maybe”. Tap Save on an opportunity.')]; }
   else { const l = myDone().map(getOpp).filter(Boolean); grid = l.length ? l.map(oppTile) : [empty('Nothing completed yet', 'Finished something? Mark it as done and it shows up here.')]; }
   const bar = isMe
-    ? h('div', { class: 'header' }, h('div', { class: 'spacer' }), h('h1', { class: 'handle', tabindex: '-1' }, utext('@' + u.username)), h('button', { class: 'back', style: 'text-align:end', type: 'button', 'aria-label': 'Menu: settings, privacy and legal', onclick: () => go({ name: 'settings' }) }, icon('menu', 26)))
-    : h('div', { class: 'header' }, h('button', { class: 'back', type: 'button', onclick: back }, (LANG === 'ar' ? '› ' : '‹ ') + t('Back')), h('h1', { class: 'handle', tabindex: '-1' }, utext('@' + u.username)), h('div', { class: 'spacer' }));
+    ? h('div', { class: 'header' }, h('div', { class: 'spacer' }), h('h1', { class: 'handle', tabindex: '-1' }, utext('\u200E@' + u.username)), h('button', { class: 'back', style: 'text-align:end', type: 'button', 'aria-label': 'Menu: settings, privacy and legal', onclick: () => go({ name: 'settings' }) }, icon('menu', 26)))
+    : h('div', { class: 'header' }, h('button', { class: 'back', type: 'button', onclick: back }, (LANG === 'ar' ? '› ' : '‹ ') + t('Back')), h('h1', { class: 'handle', tabindex: '-1' }, utext('\u200E@' + u.username)), h('div', { class: 'spacer' }));
   return h('div', null, bar,
-    h('div', { class: 'ptop' }, avatar(u, 96), h('div', { class: 'pname' }, utext(u.display_name || '@' + u.username)), u.is_demo ? pill('Demo account', 'var(--warn)') : null,
+    h('div', { class: 'ptop' }, avatar(u, 96), h('div', { class: 'pname' }, utext(u.display_name || '\u200E@' + u.username)), u.is_demo ? pill('Demo account', 'var(--warn)') : null,
       h('div', { class: 'stats' }, statBlock(followingOf(u.id).length, 'Following', () => go({ name: 'people', id: u.id, tab: 'following' })), statBlock(followersOf(u.id).length, 'Followers', () => go({ name: 'people', id: u.id, tab: 'followers' })), statBlock(likesReceived(u.id), 'Likes')),
       h('div', { class: 'pbtns' },
         isMe ? btn('Edit profile', () => go({ name: 'edit' }), 'sec') : h('button', { class: 'btn ' + (f ? 'sec' : 'primary'), type: 'button', 'aria-pressed': String(f), onclick: () => toggleFollow(u.id) }, f ? 'Following' : 'Follow'),
@@ -358,7 +358,7 @@ function profileView(u, isMe) {
         isMe ? h('button', { class: 'btn sec icon-btn', type: 'button', 'aria-label': 'Create a post', onclick: () => go({ name: 'compose' }) }, icon('plus', 22)) : null),
       u.bio ? h('p', { class: 'pbio' }, utext(u.bio)) : (isMe ? h('p', { class: 'pbio muted' }, 'Add a bio so people know who you are.') : null),
       u.quest ? h('div', { class: 'pquest' }, h('span', { class: 'label' }, 'Current quest'), h('span', null, utext(u.quest))) : null,
-      (u.interests || []).length || u.stage ? h('div', { class: 'row center' }, u.stage ? pill(u.stage, 'var(--accent)') : null, (u.interests || []).map((i) => pill(i, 'var(--line)'))) : null),
+      (u.interests || []).length || u.stage ? h('div', { class: 'row center' }, u.stage ? pill(u.stage, 'var(--accent)') : null, (u.interests || []).map((i) => pill(i, 'var(--muted)'))) : null),
     h('div', { class: 'ptabs', role: 'tablist' }, tabsDef.map(([k, ic, l]) => h('button', { type: 'button', role: 'tab', 'aria-label': l, 'aria-selected': String(ui.profTab === k), onclick: () => { ui.profTab = k; render(); } }, icon(ic, 24)))),
     h('div', { class: 'grid' }, grid));
 }
@@ -378,7 +378,7 @@ function editProfile() {
   const fld = (id, label, el) => [h('h2', null, h('label', { for: id }, label)), el];
   const userInput = h('input', { type: 'text', id: 'e-user', maxlength: '24', value: d.username, autocapitalize: 'none', oninput: (e) => { d.username = e.target.value; drawSug(); } });
   const sugRow = h('div', { class: 'row', style: 'margin-top:8px' });
-  const drawSug = () => { const l = suggestUsernames(d.display_name, m.id).filter((u) => u !== slug(d.username)); sugRow.replaceChildren(...(l.length ? [h('span', { class: 'muted small' }, 'Suggestions')].concat(l.map((u) => chip('@' + u, false, () => { d.username = u; userInput.value = u; drawSug(); }, null, 'su-' + u))) : [])); };
+  const drawSug = () => { const l = suggestUsernames(d.display_name, m.id).filter((u) => u !== slug(d.username)); sugRow.replaceChildren(...(l.length ? [h('span', { class: 'muted small' }, 'Suggestions')].concat(l.map((u) => chip('\u200E@' + u, false, () => { d.username = u; userInput.value = u; drawSug(); }, null, 'su-' + u))) : [])); };
   drawSug();
   const save = btn('Save', async () => {
     const un = slug(d.username); if (!/^[a-z0-9_.]{3,24}$/.test(un)) { err.textContent = t('Username needs 3 to 24 letters, numbers, dots or underscores.'); return; }
