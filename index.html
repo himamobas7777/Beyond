@@ -79,6 +79,11 @@ textarea { min-height: 110px; resize: vertical; }
 .header .spacer { min-width: 72px; }
 .kv { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); }
 .kv span:first-child { color: var(--muted); width: 112px; flex: none; } .kv span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.progress { height: 8px; border-radius: 8px; background: var(--surface2); overflow: hidden; margin: 8px 0; }
+.progress span { display: block; height: 100%; background: var(--accent); border-radius: 8px; }
+.chip-mini { display: inline-block; font-size: .72rem; font-weight: 800; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--chip, var(--line)); color: var(--chip, var(--fg)); }
+.path-sum { font-weight: 800; font-size: 1.05rem; padding: 12px 0; cursor: pointer; }
+.path-item details summary { cursor: pointer; color: var(--muted); }
 .notice { border: 1px solid var(--warn); border-radius: 14px; padding: 12px 14px; margin-top: 12px; }
 .empty { text-align: center; padding: 28px 8px; }
 .welcome-hero { padding-top: 56px; } .welcome-hero h1 { font-size: 2.6rem; margin-top: 18px; }
@@ -186,6 +191,8 @@ button.stat { background: none; border: 0; color: inherit; font: inherit; cursor
 <script src="i18n.js"></script>
 <script src="core.js"></script>
 <script src="screens.js"></script>
+<script src="pathdata.js"></script>
+<script src="path.js"></script>
 <script src="main.js"></script>
 </body>
 </html>

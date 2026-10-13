@@ -16,6 +16,8 @@ NEW = {
  "Alerts on your phone even when Beyond is closed (turn them on in Settings)": dict(ar="تنبيهات على موبايلك حتى لو Beyond مقفول (فعّلها من الإعدادات)", fr="Des alertes sur votre téléphone même quand Beyond est fermé (à activer dans les réglages)", es="Alertas en tu teléfono aunque Beyond esté cerrado (actívalas en Ajustes)", de="Benachrichtigungen auf deinem Handy, auch wenn Beyond geschlossen ist (in den Einstellungen aktivieren)", it="Avvisi sul telefono anche quando Beyond è chiuso (attivali nelle Impostazioni)", ja="Beyondを閉じていてもスマホに通知が届きます（設定でオンにできます）", zh="即使 Beyond 已关闭，手机上也能收到提醒（在设置中开启）"),
  "A short tour for new people and this What’s new window": dict(ar="جولة قصيرة للناس الجداد ونافذة \"الجديد\" دي", fr="Une courte visite guidée pour les nouveaux et cette fenêtre des nouveautés", es="Un recorrido corto para personas nuevas y esta ventana de novedades", de="Eine kurze Tour für Neue und dieses Neuigkeiten-Fenster", it="Un breve tour per i nuovi e questa finestra delle novità", ja="新しい人向けの簡単なツアーと、この「新機能」ウィンドウ", zh="为新用户提供的简短导览，以及这个“新功能”窗口"),
 }
+from path_i18n import PATH_NEW
+NEW.update(PATH_NEW)
 if __name__ == '__main__':
     for code in ['ar','fr','es','de','it','ja','zh']:
         p=f'i18n/{code}.js'; s=open(p,encoding='utf8').read()

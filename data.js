@@ -207,6 +207,9 @@ const BUILTIN_OPPS = [
    The "v" value is what triggers the "What's new" popup for people who have not seen it yet. Keep the text short and in English
    (it is translated through i18n). ---------- */
 const WHATS_NEW = [
+  { v: '2026-10-14', items: [
+    'My Path: a step-by-step path to your dream university, starting with Egypt to Germany, the US, UK, Canada, Turkey and the UAE'
+  ] },
   { v: '2026-10-13.2', items: [
     'Alerts on your phone even when Beyond is closed (turn them on in Settings)',
     'A short tour for new people and this What’s new window'

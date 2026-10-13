@@ -388,6 +388,7 @@ function home() {
   return h('div', null, h('div', { class: 'brand-row' }, h('div', { class: 'brand' }, 'BEYOND'), me ? h('div', { class: 'row tight', style: 'gap:0' }, msgButton(), LIVE ? bellButton() : null) : null), h('h1', { tabindex: '-1', style: 'margin-top:8px' }, t('Hey {name}.', { name })), h('p', { class: 'muted' }, 'What’s your Beyond today?'),
     me ? h('button', { class: 'card quest', type: 'button', onclick: () => setTab('profile'), 'aria-label': 'Your current quest. Open profile to change it.' }, h('div', { class: 'label' }, 'Current quest'), h('div', { class: 'quest-text' }, me.quest ? utext(me.quest) : 'What are you trying to explore right now? Set your quest.'))
       : h('div', { class: 'card quest' }, h('div', { class: 'label' }, 'You are browsing as a guest'), h('p', { style: 'margin:6px 0 0' }, 'Sign in to save things, post and follow people.'), btn('Sign in', () => go({ name: 'signin' }), 'primary')),
+    pathHomeCard(),
     h('h2', null, interests.length ? 'Picked for your interests' : 'Your next move'), interests.length ? null : h('p', { class: 'muted' }, 'Add interests in your profile to get better picks.'),
     recs.map(oppCard),
     pending.length ? [h('h2', null, 'Saved, still waiting for you'), pending.map(oppCard)] : null,
@@ -624,6 +625,7 @@ function legalDocs() {
       ['What we collect', 'From Google sign-in: your name and email address. From you: username, optional photo, bio, current quest, education stage, interests, posts, comments, likes, follows, private messages you send and receive, people you block, saved and completed opportunities, and reports you file. We also record that you confirmed your age and accepted these policies, with the date, and which posts you have viewed (only to count views).'],
       ['Why', 'Your email is used only to sign you in and contact you about your account. Everything else powers the features you use: your profile, the feed, recommendations and your history. We do not collect passwords, contacts, precise location or device identifiers.'],
       ['Who can see what', 'Your name, username, photo, bio, quest, stage, interests and posts are visible to other signed-in Beyonders. Your email is never shown to other people. Posts show how many people viewed them, never who. Private messages are visible only to you and the person you write to. Only people who follow each other can message each other, and either person can block, report or delete a chat. We do not read private messages, except the last 10 messages of a chat that someone reports to us.'],
+      ['My Path', 'Your My Path answers (dream university, major, country, school system, year and the steps you tick) are saved only in your browser on this device. They are not sent to Beyond’s database. The facts shown come from official pages and carry a source link and a last-checked date. They are a guide, not official advice.'],
       ['Where it is stored', 'In a database, file storage and sign-in service provided by Supabase. Sign-in uses Google. Fonts load from Google Fonts and one code library loads from jsDelivr, which may receive your IP address and browser details when the page opens. If you turn on alerts, your browser’s push address (issued by its maker, such as Google, Apple or Mozilla) is saved so we can send them, and it is removed when you turn alerts off or delete your account. Alerts show who wrote or reacted, never message text.'],
       ['Retention', 'We keep your data until you delete your account. Deleting your account removes your profile, photo, posts, comments, likes, follows, saved and completed items. Reports you filed about other content may be kept for safety review without your name attached where possible.'],
       ['Your rights and deletion', 'You can edit your profile at any time and delete your account in Settings, Privacy & data. For any other request, contact ' + em + '.'],
@@ -666,7 +668,7 @@ function routeView(r) {
   switch (r.name) {
     case 'detail': return detail(r.id); case 'post': return postView(r.id); case 'user': return userView(r.id); case 'edit': return editProfile();
     case 'notifications': return notificationsView(); case 'people': return peopleView(r); case 'inbox': return inboxView(); case 'chat': return chatView(r);
-    case 'compose': return composeView(r); case 'settings': return settings(); case 'legal': return legal(r.doc);
+    case 'path': return pathView(); case 'compose': return composeView(r); case 'settings': return settings(); case 'legal': return legal(r.doc);
     case 'signin': return h('div', null, backHeader('Sign in'), h('h1', { tabindex: '-1' }, 'Join the Beyonders'), consentBlock());
     default: return h('div', null, 'Not found');
   }
