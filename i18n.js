@@ -14,7 +14,7 @@ function loadLangFile(code) {
   return new Promise((res) => {
     if (code === 'en') return res({});
     if (window.I18N && window.I18N[code]) return res(window.I18N[code]);
-    const s = document.createElement('script'); s.src = 'i18n/' + code + '.js?v=1';
+    const s = document.createElement('script'); s.src = 'i18n/' + code + '.js?v=20261014b';
     s.onload = () => res((window.I18N && window.I18N[code]) || {}); s.onerror = () => res({}); document.head.appendChild(s);
   });
 }
