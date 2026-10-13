@@ -7,7 +7,7 @@ const srv = http.createServer((q, r) => { let f = path.join(root, decodeURICompo
   const br = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--no-sandbox'] }).catch(() => chromium.launch({ args: ['--no-sandbox'] }));
   let fail = 0; const ok = (c, m) => { if (!c) { fail++; console.log('FAIL', m); } else console.log('ok  ', m); };
   const ctx = await br.newContext({ viewport: { width: 360, height: 740 } });
-  await ctx.route('**/config.js', (r) => r.fulfill({ contentType: 'text/javascript', body: "window.BEYOND_CONFIG={SUPABASE_URL:'',SUPABASE_ANON_KEY:'',OWNER:{legalName:'Beyond Team',contactEmail:'a@b.c',minAge:13}};" }));
+  await ctx.route('**/config.js*', (r) => r.fulfill({ contentType: 'text/javascript', body: "window.BEYOND_CONFIG={SUPABASE_URL:'',SUPABASE_ANON_KEY:'',OWNER:{legalName:'Beyond Team',contactEmail:'a@b.c',minAge:13}};" }));
   await ctx.route(/fonts\.|jsdelivr/, (r) => r.abort());
   const page = await ctx.newPage(); const errs = []; page.on('pageerror', (e) => errs.push(String(e)));
   await page.goto('http://localhost:8767/index.html'); await page.waitForSelector('#app h1');

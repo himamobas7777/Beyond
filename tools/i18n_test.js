@@ -11,7 +11,7 @@ const srv = http.createServer((q, r) => { let f = path.join(root, decodeURICompo
   let problems = 0;
   for (const lang of ['en', 'ar', 'fr', 'es', 'de', 'it', 'ja', 'zh']) {
     const ctx = await br.newContext({ viewport: { width: 360, height: 740 } });
-    await ctx.route('**/config.js', (r) => r.fulfill({ contentType: 'text/javascript', body: "window.BEYOND_CONFIG={SUPABASE_URL:'',SUPABASE_ANON_KEY:'',OWNER:{legalName:'Beyond Team',contactEmail:'a@b.c',minAge:13,updated:'2026-10-12'}};" }));
+    await ctx.route('**/config.js*', (r) => r.fulfill({ contentType: 'text/javascript', body: "window.BEYOND_CONFIG={SUPABASE_URL:'',SUPABASE_ANON_KEY:'',OWNER:{legalName:'Beyond Team',contactEmail:'a@b.c',minAge:13,updated:'2026-10-12'}};" }));
     await ctx.route(/fonts\.(googleapis|gstatic)\.com|jsdelivr/, (r) => r.abort());
     const page = await ctx.newPage(); const errs = [];
     page.on('pageerror', (e) => errs.push(String(e))); page.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource|net::/.test(m.text())) errs.push(m.text()); });
