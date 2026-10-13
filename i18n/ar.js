@@ -389,5 +389,8 @@ window.I18N.ar = {
   "Canada": "كندا",
   "Turkey": "تركيا",
   "United Arab Emirates": "الإمارات",
-  "My Path: a step-by-step path to your dream university, starting with Egypt to Germany, the US, UK, Canada, Turkey and the UAE": "طريقي: خطوة بخطوة لجامعة أحلامك، بتبدأ من مصر وبتغطي أمريكا وبريطانيا وألمانيا وكندا وتركيا والإمارات"
+  "My Path: a step-by-step path to your dream university, starting with Egypt to Germany, the US, UK, Canada, Turkey and the UAE": "طريقي: خطوة بخطوة لجامعة أحلامك، بتبدأ من مصر وبتغطي أمريكا وبريطانيا وألمانيا وكندا وتركيا والإمارات",
+  "Send a test alert": "ابعتلي تنبيه تجريبي",
+  "Test sent. If nothing appears in a few seconds, check the notification settings of your browser on your phone.": "اتبعت التنبيه. لو ما ظهرش خلال ثواني، شوف إعدادات إشعارات المتصفح في موبايلك.",
+  "This device was not saved. Turn alerts off and on again.": "الجهاز ده ما اتسجّلش. أوقف التنبيهات وشغّلها تاني."
 };

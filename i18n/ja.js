@@ -389,5 +389,8 @@ window.I18N.ja = {
   "Canada": "カナダ",
   "Turkey": "トルコ",
   "United Arab Emirates": "アラブ首長国連邦",
-  "My Path: a step-by-step path to your dream university, starting with Egypt to Germany, the US, UK, Canada, Turkey and the UAE": "マイパス：エジプトからアメリカ、イギリス、ドイツ、カナダ、トルコ、UAEへ、夢の大学までのステップ案内"
+  "My Path: a step-by-step path to your dream university, starting with Egypt to Germany, the US, UK, Canada, Turkey and the UAE": "マイパス：エジプトからアメリカ、イギリス、ドイツ、カナダ、トルコ、UAEへ、夢の大学までのステップ案内",
+  "Send a test alert": "テスト通知を送る",
+  "Test sent. If nothing appears in a few seconds, check the notification settings of your browser on your phone.": "テストを送信しました。数秒たっても表示されない場合は、スマホのブラウザの通知設定を確認してください。",
+  "This device was not saved. Turn alerts off and on again.": "この端末は保存されませんでした。通知をオフにしてからもう一度オンにしてください。"
 };

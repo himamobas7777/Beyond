@@ -173,6 +173,7 @@ const SupaAPI = {
   async markConversationRead(other) { const { error } = await this.sb.rpc('mark_conversation_read', { other }); if (error) throw error; },
   async hideConversation(other) { const { error } = await this.sb.rpc('hide_conversation', { other }); if (error) throw error; },
   async reportConversation(other, why) { const { error } = await this.sb.rpc('report_conversation', { other, why }); if (error) throw error; },
+  async sendTestPush() { const { data, error } = await this.sb.rpc('send_test_push'); if (error) throw error; return data || 0; },
   async savePushSubscription(ep, p256dh, auth, lang) { const { error } = await this.sb.rpc('save_push_subscription', { ep, p256dh_key: p256dh, auth_key: auth, lang_code: lang }); if (error) throw error; },
   async markViews(ids) { const { data, error } = await this.sb.rpc('record_post_views', { ids }); if (error) throw error; return data || []; },
   async markAllRead() { const { error } = await this.sb.from('notifications').update({ read_at: nowIso() }).is('read_at', null); if (error) throw error; },

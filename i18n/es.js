@@ -389,5 +389,8 @@ window.I18N.es = {
   "Canada": "Canadá",
   "Turkey": "Turquía",
   "United Arab Emirates": "Emiratos Árabes Unidos",
-  "My Path: a step-by-step path to your dream university, starting with Egypt to Germany, the US, UK, Canada, Turkey and the UAE": "Mi camino: una guía paso a paso hacia tu universidad soñada, de Egipto a EE. UU., Reino Unido, Alemania, Canadá, Turquía y Emiratos"
+  "My Path: a step-by-step path to your dream university, starting with Egypt to Germany, the US, UK, Canada, Turkey and the UAE": "Mi camino: una guía paso a paso hacia tu universidad soñada, de Egipto a EE. UU., Reino Unido, Alemania, Canadá, Turquía y Emiratos",
+  "Send a test alert": "Enviar una alerta de prueba",
+  "Test sent. If nothing appears in a few seconds, check the notification settings of your browser on your phone.": "Prueba enviada. Si no aparece nada en unos segundos, revisa los ajustes de notificaciones de tu navegador en el teléfono.",
+  "This device was not saved. Turn alerts off and on again.": "Este dispositivo no se guardó. Desactiva y vuelve a activar las alertas."
 };

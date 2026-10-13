@@ -25,6 +25,7 @@ function openFromUrl(href) {
     navigator.serviceWorker.addEventListener('message', (e) => { if (e.data && e.data.type === 'open') refresh().then(() => openFromUrl(e.data.url)).catch(() => openFromUrl(e.data.url)); });
   }
   openFromUrl(location.href); refreshPushSub();
+  { const m = /^#\/o\/([\w-]+)/.exec(location.hash || ''); if (m && getOpp(m[1])) { ui.stack = [{ name: 'detail', id: m[1] }]; ui.focus = true; render(); try { history.replaceState(null, '', location.pathname); } catch (e) {} } }
   setTimeout(maybeShowGuide, 600);
   setInterval(() => { pollNotifications(); const r = typeof topRoute === 'function' ? topRoute() : null; if (!(r && (r.name === 'chat' || r.name === 'inbox'))) pollMessages(); }, 60000);
   setInterval(() => { const r = topRoute(); if (r && (r.name === 'chat' || r.name === 'inbox')) pollMessages(); }, 6000);

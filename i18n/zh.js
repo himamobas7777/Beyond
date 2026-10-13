@@ -389,5 +389,8 @@ window.I18N.zh = {
   "Canada": "加拿大",
   "Turkey": "土耳其",
   "United Arab Emirates": "阿联酋",
-  "My Path: a step-by-step path to your dream university, starting with Egypt to Germany, the US, UK, Canada, Turkey and the UAE": "我的路径：从埃及出发，分步通往美国、英国、德国、加拿大、土耳其和阿联酋的梦想大学"
+  "My Path: a step-by-step path to your dream university, starting with Egypt to Germany, the US, UK, Canada, Turkey and the UAE": "我的路径：从埃及出发，分步通往美国、英国、德国、加拿大、土耳其和阿联酋的梦想大学",
+  "Send a test alert": "发送测试通知",
+  "Test sent. If nothing appears in a few seconds, check the notification settings of your browser on your phone.": "测试已发送。如果几秒后没有出现，请检查手机上浏览器的通知设置。",
+  "This device was not saved. Turn alerts off and on again.": "此设备未保存。请先关闭再重新开启通知。"
 };

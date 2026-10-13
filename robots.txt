@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://himamobas7777.github.io/Beyond/sitemap.xml

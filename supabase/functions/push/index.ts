@@ -21,6 +21,8 @@ const TXT: Record<string, string[]> = {
   zh: ["{name} 赞了你的帖子", "{name} 赞了你的评论", "{name} 评论了你的帖子", "{name} 回复了你的评论", "{name} 开始关注你了", "某人", "{name} 给你发了一条消息"],
 };
 
+const TEST: Record<string, string> = { en: "Test alert: it works!", ar: "تنبيه تجريبي: شغّال!", fr: "Alerte de test : ça marche !", es: "Alerta de prueba: ¡funciona!", de: "Testbenachrichtigung: Es funktioniert!", it: "Avviso di prova: funziona!", ja: "テスト通知：届きました！", zh: "测试通知：成功了！" };
+
 async function cfg(key: string): Promise<string | null> {
   const { data } = await sb.from("push_config").select("value").eq("key", key).maybeSingle();
   return data?.value ?? null;
@@ -44,11 +46,12 @@ Deno.serve(async (req) => {
   if (!secret || req.headers.get("x-push-secret") !== secret) return json({ error: "forbidden" }, 403);
   let body: { kind?: string; id?: string };
   try { body = await req.json(); } catch { return json({ error: "bad json" }, 400); }
-  if (!body.id || (body.kind !== "notification" && body.kind !== "message")) return json({ error: "bad request" }, 400);
+  if (!body.id || (body.kind !== "notification" && body.kind !== "message" && body.kind !== "test")) return json({ error: "bad request" }, 400);
 
   // who gets it, who caused it, what to open
   let userId: string, actorId: string | null, url: string, tag: string, textIdx: number;
-  if (body.kind === "message") {
+  if (body.kind === "test") { userId = body.id; actorId = null; textIdx = 0; tag = "test"; url = "?open=notifications"; }
+  else if (body.kind === "message") {
     const { data: m } = await sb.from("messages").select("sender_id, recipient_id").eq("id", body.id).maybeSingle();
     if (!m) return json({ ok: true, skipped: "gone" });
     userId = m.recipient_id; actorId = m.sender_id; textIdx = 6; tag = "msg-" + m.sender_id; url = "?open=chat&id=" + m.sender_id;
@@ -66,14 +69,14 @@ Deno.serve(async (req) => {
 
   const v = await vapid();
   webpush.setVapidDetails(SITE, v.pub, v.priv);
-  let sent = 0; const dead: string[] = [];
+  let sent = 0; const dead: string[] = []; const failed: number[] = [];
   await Promise.all(subs.map(async (s) => {
     const dict = TXT[s.lang] || TXT.en;
     const name = (actor?.display_name || (actor?.username ? "@" + actor.username : "")) || dict[5];
-    const payload = JSON.stringify({ title: "Beyond", body: dict[textIdx].replace("{name}", name), url, tag, lang: s.lang });
+    const payload = JSON.stringify({ title: "Beyond", body: body.kind === "test" ? (TEST[s.lang] || TEST.en) : dict[textIdx].replace("{name}", name), url, tag, lang: s.lang });
     try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, payload, { TTL: 86400, urgency: "normal" }); sent++; }
-    catch (e) { const code = (e as { statusCode?: number }).statusCode; if (code === 404 || code === 410) dead.push(s.id); else console.error("push failed", code); }
+    catch (e) { const code = (e as { statusCode?: number }).statusCode; if (code === 404 || code === 410) dead.push(s.id); else { console.error("push failed", code); failed.push(code ?? 0); } }
   }));
   if (dead.length) await sb.from("push_subscriptions").delete().in("id", dead);
-  return json({ ok: true, sent, removed: dead.length });
+  return json({ ok: true, sent, removed: dead.length, failed });
 });

@@ -80,3 +80,26 @@ do $$ begin
     create trigger push_on_message after insert on public.messages for each row execute function public.push_trigger('message');
   end if;
 end $$;
+
+-- ---------- test alert (Settings > "Send a test alert"): sends one alert to the caller's own saved devices, max once per 20 seconds ----------
+create table if not exists public.push_tests (user_id uuid primary key references public.profiles(id) on delete cascade, at timestamptz not null default now());
+alter table public.push_tests enable row level security;
+revoke all on public.push_tests from anon, authenticated;
+create or replace function public.send_test_push() returns integer
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid(); secret text; n integer; last_at timestamptz;
+begin
+  if me is null then raise exception 'Not signed in'; end if;
+  select count(*) into n from public.push_subscriptions where user_id = me;
+  if n = 0 then return 0; end if;
+  select at into last_at from public.push_tests where user_id = me;
+  if last_at is not null and last_at > now() - interval '20 seconds' then raise exception 'Slow down a little'; end if;
+  insert into public.push_tests (user_id, at) values (me, now()) on conflict (user_id) do update set at = now();
+  select value into secret from public.push_config where key = 'trigger_secret';
+  perform net.http_post(url := 'https://zyfinpacnbyylwgcpqud.supabase.co/functions/v1/push',
+    headers := jsonb_build_object('Content-Type', 'application/json', 'x-push-secret', secret),
+    body := jsonb_build_object('kind', 'test', 'id', me));
+  return n;
+end $$;
+revoke execute on function public.send_test_push() from public, anon;
+grant execute on function public.send_test_push() to authenticated;
