@@ -204,6 +204,72 @@ function chatView(r) {
   return h('div', { class: 'chat' }, header, menu, h('div', { class: 'bubbles', 'aria-live': 'polite' }, msgs.length ? msgs.map(bubble) : h('p', { class: 'muted center small' }, ok ? 'Say hi. Be kind and keep it safe.' : '')), err, composer);
 }
 
+
+/* ---------- GUIDE: a short tour for new people, and a "What's new" popup after updates ---------- */
+const TOUR = [
+  ['home', 'Welcome to Beyond', 'Find real opportunities: courses, competitions, scholarships, volunteering and universities.'],
+  ['explore', 'Explore', 'Search and filter by category, region or cost. Tap Save on what you like and mark it done when you finish.'],
+  ['feed', 'Share and learn', 'Post a discovery, project or question in the Feed. Like, comment and reply.'],
+  ['mail', 'Follow people', 'Follow people you like. When you follow each other, you can send private messages.'],
+  ['profile', 'Your profile', 'Add a photo, a bio and your current quest. Likes, comments and new followers show up under the bell.']
+];
+const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+function openSheet(build) {
+  closeSheet();
+  const opener = document.activeElement;
+  const bg = h('div', { class: 'modal-bg', id: 'sheet' });
+  const card = h('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'sheet-title' });
+  bg.append(card);
+  const close = () => { document.removeEventListener('keydown', onKey); bg.remove(); document.body.classList.remove('modal-open'); if (opener && opener.focus && document.contains(opener)) opener.focus(); };
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  document.addEventListener('keydown', onKey);
+  bg.addEventListener('click', (e) => { if (e.target === bg) close(); });
+  document.body.append(bg); document.body.classList.add('modal-open');
+  build(card, close);
+  const first = card.querySelector('[data-first]') || card.querySelector('button'); if (first) first.focus();
+  return close;
+}
+function closeSheet() { const e = document.getElementById('sheet'); if (e) { e.remove(); document.body.classList.remove('modal-open'); } }
+function showTour() {
+  let i = 0;
+  openSheet((card, close) => {
+    const draw = () => {
+      const [ic, title, body] = TOUR[i], last = i === TOUR.length - 1;
+      card.replaceChildren(
+        h('div', { class: 'tour-ic' }, icon(ic, 36)),
+        h('h2', { id: 'sheet-title', style: 'margin:8px 0 4px;text-align:center' }, title),
+        h('p', { style: 'text-align:center;margin:0 0 12px' }, body),
+        h('div', { class: 'dots', 'aria-hidden': 'true' }, TOUR.map((_, k) => h('span', { class: k === i ? 'on' : '' }))),
+        h('p', { class: 'muted small', style: 'text-align:center;margin:0' }, t('Step {a} of {b}', { a: i + 1, b: TOUR.length })),
+        h('div', { class: 'row', style: 'gap:8px;margin-top:8px' },
+          i > 0 ? h('button', { class: 'btn sec', type: 'button', onclick: () => { i--; draw(); } }, 'Back') : h('button', { class: 'btn sec', type: 'button', onclick: finish }, 'Skip'),
+          h('button', { class: 'btn primary', type: 'button', 'data-first': '', onclick: () => { if (last) finish(); else { i++; draw(); } } }, last ? 'Done' : 'Next')));
+      const f = card.querySelector('[data-first]'); if (f) f.focus();
+    };
+    const finish = () => { if (S.me) lsSet('beyond:tour:' + S.me.id, 'done'); lsSet('beyond:seenVersion', WHATS_NEW[0].v); close(); };
+    draw();
+  });
+}
+function showWhatsNew(sinceV) {
+  const list = WHATS_NEW.filter((r) => !sinceV || r.v > sinceV).slice(0, 2);
+  const items = (list.length ? list : WHATS_NEW.slice(0, 1)).flatMap((r) => r.items).slice(0, 8);
+  openSheet((card, close) => {
+    card.replaceChildren(
+      h('div', { class: 'tour-ic' }, icon('bell', 32)),
+      h('h2', { id: 'sheet-title', style: 'margin:8px 0 8px;text-align:center' }, 'What’s new in Beyond'),
+      h('ul', { class: 'newlist' }, items.map((x) => h('li', null, x))),
+      h('button', { class: 'btn primary', type: 'button', 'data-first': '', onclick: () => { lsSet('beyond:seenVersion', WHATS_NEW[0].v); close(); } }, 'Got it'));
+  });
+}
+function maybeShowGuide() {
+  if (ui.guideChecked || !S.ready || S.error || !S.me || !S.me.onboarded || document.getElementById('sheet')) return;
+  ui.guideChecked = true;
+  const tourKey = 'beyond:tour:' + S.me.id, seen = lsGet('beyond:seenVersion'), cur = WHATS_NEW[0].v;
+  if (lsGet(tourKey) === 'pending') { showTour(); return; }
+  if (seen !== cur) { if (seen) showWhatsNew(seen); else lsSet('beyond:seenVersion', cur); }
+}
+
 function langPicker() {
   return h('div', { class: 'lang-pick' }, h('select', { id: 'lang-sel', 'aria-label': 'Language', onchange: (e) => setLang(e.target.value, true) }, LANGS.map(([c, n]) => h('option', { value: c, selected: c === LANG }, utext(n)))));
 }
@@ -262,7 +328,8 @@ function onboarding() {
         const keepDefault = /^beyonder(_[a-z0-9]{6})?$/.test(S.me.username || '');
         if (d.username && d.name.trim() && keepDefault) patch.username = d.username;
         try { await updateMe(patch); } catch (e) { if (patch.username && e && e.code === '23505') { delete patch.username; await updateMe(patch); } else throw e; }
-        ui.tab = 'home'; ui.focus = true; render();
+        lsSet('beyond:tour:' + myId(), 'pending'); ui.guideChecked = false;
+        ui.tab = 'home'; ui.focus = true; render(); setTimeout(maybeShowGuide, 400);
       } catch (e) { err.textContent = errText(e); }
     }, 'primary', { style: 'margin-top:20px' }), err);
 }
@@ -498,6 +565,7 @@ function settings() {
     h('div', { class: 'card' }, h('p', { style: 'margin:0' }, LIVE ? 'Your data is stored in Beyond’s database (hosted by Supabase). We do not sell it or use it for ads or tracking.' : 'This preview keeps everything on this device only. Nothing is sent anywhere.')),
     memoryOnly ? h('div', { class: 'notice' }, 'Your browser is blocking storage, so changes will be lost when you close this page.') : null,
     S.me ? [h('h2', null, 'Account'), btn('Edit profile', () => go({ name: 'edit' })), LIVE ? btn('Sign out', async () => { await API.signOut(); ui.stack = []; ui.tab = 'home'; await refresh(); ui.focus = true; render(); }) : null] : null,
+    h('h2', null, 'Help'), btn('Show the tour again', () => showTour()), btn('What’s new in Beyond', () => showWhatsNew(null)),
     h('h2', null, 'Language'), langPicker(), h('h2', null, 'Read the details'), doc('Privacy Policy', 'privacy'), doc('Terms of Service', 'terms'), doc('Cookies & tracking', 'cookies'), doc('Pricing & refunds', 'pricing'),
     S.me ? [h('h2', null, 'Delete my data'), h('p', { class: 'muted' }, 'Removes your account and everything you added. This cannot be undone.'), box, err] : null,
     h('h2', null, 'Contact'), h('p', { class: 'muted' }, t('Questions about privacy or your data: {email}', { email: todo(OWNER.contactEmail, 'contact email in config.js') })));

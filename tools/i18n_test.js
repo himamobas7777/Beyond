@@ -39,7 +39,7 @@ const srv = http.createServer((q, r) => { let f = path.join(root, decodeURICompo
     await page.click('.welcome-hero .btn.primary'); await page.waitForTimeout(100); await scan('join');
     await page.click('.check .box >> nth=0'); await page.click('.check .box >> nth=1'); await scan('consent');
     await page.click('#app .btn.primary'); await page.waitForSelector('#ob-name'); await scan('onboarding');
-    await page.click('#app .btn.primary'); await page.waitForSelector('nav.tabs button'); await scan('home');
+    await page.click('#app .btn.primary'); await page.waitForSelector('nav.tabs button'); await page.waitForSelector('.modal'); await scan('tour'); await page.keyboard.press('Escape'); await scan('home');
     const tabs = await page.$$('nav.tabs button');
     for (const [i, name] of ['home', 'explore', 'feed', 'profile'].entries()) { await (await page.$$('nav.tabs button'))[i].click(); await page.waitForTimeout(80); await scan(name); }
     // explore -> open first opportunity, edit profile, settings, legal

@@ -141,6 +141,13 @@ nav.tabs button[aria-current="page"] { color: var(--accent); font-weight: 800; }
 .notif { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 8px; background: none; border: 0; border-bottom: 1px solid var(--line); color: var(--fg); font: inherit; text-align: start; cursor: pointer; min-height: 56px; }
 .notif.unread { background: var(--surface); }
 .chat-title { display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center; font-family: var(--font-display); font-weight: 800; min-width: 0; } .chat-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.modal-bg { position: fixed; inset: 0; background: rgba(5,10,25,.72); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 30; }
+.modal { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 24px 20px 20px; width: 100%; max-width: 380px; max-height: 88vh; overflow: auto; }
+.modal .btn { margin-top: 8px; } .modal .row .btn { flex: 1; margin-top: 0; }
+.tour-ic { width: 64px; height: 64px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; margin: 0 auto; }
+.dots { display: flex; gap: 6px; justify-content: center; margin: 4px 0 8px; } .dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--line); } .dots span.on { background: var(--accent); width: 22px; border-radius: 4px; }
+.newlist { margin: 0 0 8px; padding-inline-start: 22px; display: flex; flex-direction: column; gap: 8px; }
+body.modal-open { overflow: hidden; }
 body.in-chat nav.tabs { display: none; }
 .bubbles { display: flex; flex-direction: column; gap: 6px; padding: 8px 0 16px; }
 .bubble { max-width: 82%; padding: 8px 12px; border-radius: 18px; overflow-wrap: anywhere; white-space: pre-wrap; line-height: 1.4; }

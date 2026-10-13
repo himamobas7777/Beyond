@@ -202,3 +202,17 @@ const BUILTIN_OPPS = [
     descr: 'A free program that teaches IT skills and the basics of AI, run by Astana Hub, a digital technopark and innovation cluster in Kazakhstan. The page also links to online courses and a Tech Orda course without describing them.',
     tags: ['centralasia', 'coding'], url: 'https://astanahub.com/' })
 ];
+
+/* ---------- release notes: add a NEW entry at the TOP of this list each time you ship something people should notice.
+   The "v" value is what triggers the "What's new" popup for people who have not seen it yet. Keep the text short and in English
+   (it is translated through i18n). ---------- */
+const WHATS_NEW = [
+  { v: '2026-10-13', items: [
+    'Private messages and an inbox for people who follow each other',
+    'Reply to comments and like them',
+    'See your followers and who you follow',
+    'See how many people viewed a post',
+    'Notifications for likes, comments and new followers',
+    'New opportunities from the Arab region and Central Asia'
+  ] }
+];

@@ -11,6 +11,7 @@
   } catch (e) { S.error = errText(e); }
   S.ready = true;
   render();
+  setTimeout(maybeShowGuide, 600);
   setInterval(() => { pollNotifications(); const r = typeof topRoute === 'function' ? topRoute() : null; if (!(r && (r.name === 'chat' || r.name === 'inbox'))) pollMessages(); }, 60000);
   setInterval(() => { const r = topRoute(); if (r && (r.name === 'chat' || r.name === 'inbox')) pollMessages(); }, 6000);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { pollNotifications(); pollMessages(); } });
