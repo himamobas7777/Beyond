@@ -13,7 +13,7 @@ const srv = http.createServer((q, r) => { let f = path.join(root, decodeURICompo
     const page = await ctx.newPage(); const errs = []; page.on('pageerror', (e) => errs.push(String(e)));
     await page.addInitScript((l) => localStorage.setItem('beyond:lang', l), lang);
     await page.goto('http://localhost:8766/index.html'); await page.waitForSelector('#app h1');
-    await page.click('.welcome-hero .btn.primary'); await page.click('.check .box >> nth=0'); await page.click('.check .box >> nth=1'); await page.click('#app .btn.primary'); await page.waitForSelector('#ob-name'); await page.click('#app .btn.primary'); await page.waitForSelector('nav.tabs button');
+    await page.click('.welcome-hero .btn.primary'); await page.click('.check .box >> nth=0'); await page.click('.check .box >> nth=1'); await page.click('#app .btn.primary'); await page.waitForSelector('#ob-name'); await page.click('#app .btn.primary'); await page.waitForSelector('nav.tabs button'); await page.waitForSelector('.modal', { timeout: 3000 }).then(() => page.keyboard.press('Escape')).catch(() => {}); await page.waitForTimeout(60);
     await page.evaluate(() => {
       S.notifications = [
         { id: 'n1', user_id: S.me.id, actor_id: 'beyond-demo', type: 'like', post_id: 'demo-p1', created_at: new Date().toISOString(), read_at: null },

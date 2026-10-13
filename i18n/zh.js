@@ -313,5 +313,19 @@ window.I18N.zh = {
   "See your followers and who you follow": "查看你的粉丝和你关注的人",
   "See how many people viewed a post": "查看有多少人看过帖子",
   "Notifications for likes, comments and new followers": "点赞、评论和新粉丝的通知",
-  "New opportunities from the Arab region and Central Asia": "来自阿拉伯地区和中亚的新机会"
+  "New opportunities from the Arab region and Central Asia": "来自阿拉伯地区和中亚的新机会",
+  "Alerts on this device": "此设备上的提醒",
+  "Alerts are on for this device.": "此设备已开启提醒。",
+  "Get alerts even when Beyond is closed.": "即使 Beyond 已关闭，也能收到提醒。",
+  "Alerts are blocked in your browser settings. Allow notifications for this site to turn them on.": "提醒已在浏览器设置中被屏蔽。请允许此网站发送通知后再开启。",
+  "On iPhone: tap Share, then Add to Home Screen, open Beyond from your Home Screen, and come back here.": "在 iPhone 上：点按“分享”，选择“添加到主屏幕”，从主屏幕打开 Beyond，再回到这里。",
+  "Your browser does not support alerts.": "你的浏览器不支持提醒。",
+  "Alerts never show message text, only who wrote.": "提醒不会显示消息内容，只显示是谁发的。",
+  "Turn on alerts": "开启提醒",
+  "Turn off alerts": "关闭提醒",
+  "Alerts are turned on.": "已开启提醒。",
+  "Alerts are turned off.": "已关闭提醒。",
+  "Could not turn on alerts.": "无法开启提醒。",
+  "Alerts on your phone even when Beyond is closed (turn them on in Settings)": "即使 Beyond 已关闭，手机上也能收到提醒（在设置中开启）",
+  "A short tour for new people and this What’s new window": "为新用户提供的简短导览，以及这个“新功能”窗口"
 };

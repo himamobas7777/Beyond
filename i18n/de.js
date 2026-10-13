@@ -313,5 +313,19 @@ window.I18N.de = {
   "See your followers and who you follow": "Sieh deine Follower und wem du folgst",
   "See how many people viewed a post": "Sieh, wie viele Leute einen Beitrag angesehen haben",
   "Notifications for likes, comments and new followers": "Benachrichtigungen für Likes, Kommentare und neue Follower",
-  "New opportunities from the Arab region and Central Asia": "Neue Chancen aus der arabischen Region und Zentralasien"
+  "New opportunities from the Arab region and Central Asia": "Neue Chancen aus der arabischen Region und Zentralasien",
+  "Alerts on this device": "Benachrichtigungen auf diesem Gerät",
+  "Alerts are on for this device.": "Benachrichtigungen sind für dieses Gerät aktiviert.",
+  "Get alerts even when Beyond is closed.": "Erhalte Benachrichtigungen, auch wenn Beyond geschlossen ist.",
+  "Alerts are blocked in your browser settings. Allow notifications for this site to turn them on.": "Benachrichtigungen sind in den Browsereinstellungen blockiert. Erlaube sie für diese Seite, um sie zu aktivieren.",
+  "On iPhone: tap Share, then Add to Home Screen, open Beyond from your Home Screen, and come back here.": "Auf dem iPhone: Tippe auf Teilen, dann Zum Home-Bildschirm, öffne Beyond vom Home-Bildschirm und komm hierher zurück.",
+  "Your browser does not support alerts.": "Dein Browser unterstützt keine Benachrichtigungen.",
+  "Alerts never show message text, only who wrote.": "Benachrichtigungen zeigen nie den Nachrichtentext, nur wer geschrieben hat.",
+  "Turn on alerts": "Benachrichtigungen aktivieren",
+  "Turn off alerts": "Benachrichtigungen deaktivieren",
+  "Alerts are turned on.": "Benachrichtigungen aktiviert.",
+  "Alerts are turned off.": "Benachrichtigungen deaktiviert.",
+  "Could not turn on alerts.": "Benachrichtigungen konnten nicht aktiviert werden.",
+  "Alerts on your phone even when Beyond is closed (turn them on in Settings)": "Benachrichtigungen auf deinem Handy, auch wenn Beyond geschlossen ist (in den Einstellungen aktivieren)",
+  "A short tour for new people and this What’s new window": "Eine kurze Tour für Neue und dieses Neuigkeiten-Fenster"
 };

@@ -313,5 +313,19 @@ window.I18N.it = {
   "See your followers and who you follow": "Guarda i tuoi follower e chi segui",
   "See how many people viewed a post": "Vedi quante persone hanno visto un post",
   "Notifications for likes, comments and new followers": "Notifiche per mi piace, commenti e nuovi follower",
-  "New opportunities from the Arab region and Central Asia": "Nuove opportunità dalla regione araba e dall’Asia centrale"
+  "New opportunities from the Arab region and Central Asia": "Nuove opportunità dalla regione araba e dall’Asia centrale",
+  "Alerts on this device": "Avvisi su questo dispositivo",
+  "Alerts are on for this device.": "Gli avvisi sono attivi su questo dispositivo.",
+  "Get alerts even when Beyond is closed.": "Ricevi avvisi anche quando Beyond è chiuso.",
+  "Alerts are blocked in your browser settings. Allow notifications for this site to turn them on.": "Gli avvisi sono bloccati nelle impostazioni del browser. Consenti le notifiche per questo sito per attivarli.",
+  "On iPhone: tap Share, then Add to Home Screen, open Beyond from your Home Screen, and come back here.": "Su iPhone: tocca Condividi, poi Aggiungi alla schermata Home, apri Beyond dalla schermata Home e torna qui.",
+  "Your browser does not support alerts.": "Il tuo browser non supporta gli avvisi.",
+  "Alerts never show message text, only who wrote.": "Gli avvisi non mostrano mai il testo dei messaggi, solo chi ha scritto.",
+  "Turn on alerts": "Attiva gli avvisi",
+  "Turn off alerts": "Disattiva gli avvisi",
+  "Alerts are turned on.": "Avvisi attivati.",
+  "Alerts are turned off.": "Avvisi disattivati.",
+  "Could not turn on alerts.": "Impossibile attivare gli avvisi.",
+  "Alerts on your phone even when Beyond is closed (turn them on in Settings)": "Avvisi sul telefono anche quando Beyond è chiuso (attivali nelle Impostazioni)",
+  "A short tour for new people and this What’s new window": "Un breve tour per i nuovi e questa finestra delle novità"
 };

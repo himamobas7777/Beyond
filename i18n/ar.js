@@ -313,5 +313,19 @@ window.I18N.ar = {
   "See your followers and who you follow": "شوف متابعينك والناس اللي بتتابعهم",
   "See how many people viewed a post": "شوف كام واحد شاف البوست",
   "Notifications for likes, comments and new followers": "إشعارات للإعجابات والتعليقات والمتابعين الجدد",
-  "New opportunities from the Arab region and Central Asia": "فرص جديدة من المنطقة العربية وآسيا الوسطى"
+  "New opportunities from the Arab region and Central Asia": "فرص جديدة من المنطقة العربية وآسيا الوسطى",
+  "Alerts on this device": "التنبيهات على هذا الجهاز",
+  "Alerts are on for this device.": "التنبيهات شغّالة على هذا الجهاز.",
+  "Get alerts even when Beyond is closed.": "استلم تنبيهات حتى لو Beyond مقفول.",
+  "Alerts are blocked in your browser settings. Allow notifications for this site to turn them on.": "التنبيهات محظورة من إعدادات المتصفح. اسمح بالإشعارات لهذا الموقع لتفعيلها.",
+  "On iPhone: tap Share, then Add to Home Screen, open Beyond from your Home Screen, and come back here.": "على الآيفون: اضغط مشاركة ثم إضافة إلى الشاشة الرئيسية، افتح Beyond من الشاشة الرئيسية، وارجع هنا.",
+  "Your browser does not support alerts.": "متصفحك لا يدعم التنبيهات.",
+  "Alerts never show message text, only who wrote.": "التنبيهات مش بتعرض نص الرسالة، بتعرض بس مين كتب.",
+  "Turn on alerts": "فعّل التنبيهات",
+  "Turn off alerts": "أوقف التنبيهات",
+  "Alerts are turned on.": "تم تفعيل التنبيهات.",
+  "Alerts are turned off.": "تم إيقاف التنبيهات.",
+  "Could not turn on alerts.": "تعذّر تفعيل التنبيهات.",
+  "Alerts on your phone even when Beyond is closed (turn them on in Settings)": "تنبيهات على موبايلك حتى لو Beyond مقفول (فعّلها من الإعدادات)",
+  "A short tour for new people and this What’s new window": "جولة قصيرة للناس الجداد ونافذة \"الجديد\" دي"
 };

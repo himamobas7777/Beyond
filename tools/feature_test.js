@@ -22,7 +22,7 @@ const srv = http.createServer((q, r) => { let f = path.join(root, decodeURICompo
   await page.click('.welcome-hero .btn.primary'); await page.click('.check .box >> nth=0'); await page.click('.check .box >> nth=1'); await page.click('#app .btn.primary'); await page.waitForSelector('#ob-name');
   await page.fill('#ob-name', 'Sara Hassan'); await page.waitForSelector('[data-k^="su-"]');
   ok((await page.$$('[data-k^="su-"]')).length === 4, 'onboarding shows 4 suggestion chips');
-  await page.click('[data-k="su-sara_h"]'); await page.click('#app .btn.primary'); await page.waitForSelector('nav.tabs button');
+  await page.click('[data-k="su-sara_h"]'); await page.click('#app .btn.primary'); await page.waitForSelector('nav.tabs button'); await page.waitForSelector('.modal', { timeout: 3000 }).then(() => page.keyboard.press('Escape')).catch(() => {}); await page.waitForTimeout(60);
   ok(await page.evaluate(() => S.me.username) === 'sara_h', 'chosen suggestion saved as username');
   // comments: add, reply, like
   await page.evaluate(() => go({ name: 'post', id: 'demo-p2' })); await page.waitForSelector('#cmt');

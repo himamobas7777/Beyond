@@ -313,5 +313,19 @@ window.I18N.fr = {
   "See your followers and who you follow": "Voyez vos abonnés et les personnes que vous suivez",
   "See how many people viewed a post": "Voyez combien de personnes ont vu une publication",
   "Notifications for likes, comments and new followers": "Notifications pour les J’aime, commentaires et nouveaux abonnés",
-  "New opportunities from the Arab region and Central Asia": "Nouvelles opportunités du monde arabe et d’Asie centrale"
+  "New opportunities from the Arab region and Central Asia": "Nouvelles opportunités du monde arabe et d’Asie centrale",
+  "Alerts on this device": "Alertes sur cet appareil",
+  "Alerts are on for this device.": "Les alertes sont activées sur cet appareil.",
+  "Get alerts even when Beyond is closed.": "Recevez des alertes même quand Beyond est fermé.",
+  "Alerts are blocked in your browser settings. Allow notifications for this site to turn them on.": "Les alertes sont bloquées dans les réglages du navigateur. Autorisez les notifications pour ce site pour les activer.",
+  "On iPhone: tap Share, then Add to Home Screen, open Beyond from your Home Screen, and come back here.": "Sur iPhone : touchez Partager, puis Sur l’écran d’accueil, ouvrez Beyond depuis l’écran d’accueil et revenez ici.",
+  "Your browser does not support alerts.": "Votre navigateur ne prend pas en charge les alertes.",
+  "Alerts never show message text, only who wrote.": "Les alertes n’affichent jamais le texte des messages, seulement qui a écrit.",
+  "Turn on alerts": "Activer les alertes",
+  "Turn off alerts": "Désactiver les alertes",
+  "Alerts are turned on.": "Alertes activées.",
+  "Alerts are turned off.": "Alertes désactivées.",
+  "Could not turn on alerts.": "Impossible d’activer les alertes.",
+  "Alerts on your phone even when Beyond is closed (turn them on in Settings)": "Des alertes sur votre téléphone même quand Beyond est fermé (à activer dans les réglages)",
+  "A short tour for new people and this What’s new window": "Une courte visite guidée pour les nouveaux et cette fenêtre des nouveautés"
 };

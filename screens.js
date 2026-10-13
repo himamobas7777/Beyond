@@ -120,7 +120,7 @@ function notificationsView() {
   };
   const list = S.notifications;
   const markAll = btn('Mark all as read', async () => { try { await API.markAllRead(); S.notifications.forEach((n) => { if (!n.read_at) n.read_at = nowIso(); }); updateBell(); render(); } catch (e) { toast(errText(e)); } }, 'sec');
-  return h('div', null, backHeader('Notifications'),
+  return h('div', null, backHeader('Notifications'), LIVE ? pushCard(true) : null,
     list.length ? [unreadCount() ? markAll : null, h('div', null, list.map(row))] : empty('No notifications yet', 'When someone likes, comments on or follows you, it shows up here.'));
 }
 
@@ -268,6 +268,50 @@ function maybeShowGuide() {
   const tourKey = 'beyond:tour:' + S.me.id, seen = lsGet('beyond:seenVersion'), cur = WHATS_NEW[0].v;
   if (lsGet(tourKey) === 'pending') { showTour(); return; }
   if (seen !== cur) { if (seen) showWhatsNew(seen); else lsSet('beyond:seenVersion', cur); }
+}
+
+
+/* ---------- ALERTS (web push): notifications that show up even when Beyond is closed ---------- */
+const pushSupported = () => LIVE && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+const b64ToBytes = (b64) => { const pad = '='.repeat((4 - (b64.length % 4)) % 4), raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(raw, (c) => c.charCodeAt(0)); };
+const bytesToB64 = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+async function pushState() {
+  if (!pushSupported()) return isIOS() && !isStandalone() ? 'ios-install' : 'unsupported';
+  if (Notification.permission === 'denied') return 'denied';
+  try { const reg = await navigator.serviceWorker.getRegistration(); const sub = reg && await reg.pushManager.getSubscription(); return sub && Notification.permission === 'granted' ? 'on' : 'off'; } catch (e) { return 'off'; }
+}
+async function saveSub(sub) { const j = sub.toJSON(); await API.savePushSubscription(j.endpoint, j.keys.p256dh, j.keys.auth, LANG); }
+async function enablePush() {
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') throw new Error(t('Alerts are blocked in your browser settings. Allow notifications for this site to turn them on.'));
+  const res = await fetch(CFG.SUPABASE_URL + '/functions/v1/push'); if (!res.ok) throw new Error(t('Could not turn on alerts.'));
+  const { publicKey } = await res.json();
+  const reg = await navigator.serviceWorker.ready;
+  let sub = await reg.pushManager.getSubscription();
+  if (sub && bytesToB64(sub.options.applicationServerKey) !== publicKey) { await sub.unsubscribe(); sub = null; }
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(publicKey) });
+  await saveSub(sub);
+}
+async function disablePush() {
+  const reg = await navigator.serviceWorker.getRegistration(); const sub = reg && await reg.pushManager.getSubscription();
+  if (sub) { const ep = sub.endpoint; await sub.unsubscribe(); try { await API.remove('push_subscriptions', { endpoint: ep }); } catch (e) { /* the server removes dead addresses by itself */ } }
+}
+async function refreshPushSub() { // keeps the saved language and account up to date; silent
+  try { if (!S.me || (await pushState()) !== 'on') return; const reg = await navigator.serviceWorker.getRegistration(); await saveSub(await reg.pushManager.getSubscription()); } catch (e) {}
+}
+function pushCard(compact) {
+  const box = h('div', { class: 'card', style: 'margin:8px 0' });
+  const draw = async () => {
+    const st = await pushState(); if (st === 'unsupported' && compact) { box.remove(); return; }
+    if (st === 'on' && compact) { box.remove(); return; }
+    const msg = h('p', { class: 'err', 'aria-live': 'polite', style: 'margin:6px 0 0' });
+    const text = { on: 'Alerts are on for this device.', off: 'Get alerts even when Beyond is closed.', denied: 'Alerts are blocked in your browser settings. Allow notifications for this site to turn them on.', 'ios-install': 'On iPhone: tap Share, then Add to Home Screen, open Beyond from your Home Screen, and come back here.', unsupported: 'Your browser does not support alerts.' }[st];
+    const act = st === 'off' ? btn('Turn on alerts', async () => { try { await enablePush(); toast('Alerts are turned on.'); draw(); } catch (e) { msg.textContent = errText(e); } }, 'primary') : st === 'on' ? btn('Turn off alerts', async () => { try { await disablePush(); toast('Alerts are turned off.'); draw(); } catch (e) { msg.textContent = errText(e); } }, 'sec') : null;
+    box.replaceChildren(compact ? h('b', null, 'Alerts on this device') : null, h('p', { class: 'muted', style: 'margin:4px 0 0' }, text), st === 'on' || st === 'off' ? h('p', { class: 'muted small', style: 'margin:4px 0 0' }, 'Alerts never show message text, only who wrote.') : null, act, msg);
+  };
+  draw(); return box;
 }
 
 function langPicker() {
@@ -565,6 +609,7 @@ function settings() {
     h('div', { class: 'card' }, h('p', { style: 'margin:0' }, LIVE ? 'Your data is stored in Beyond’s database (hosted by Supabase). We do not sell it or use it for ads or tracking.' : 'This preview keeps everything on this device only. Nothing is sent anywhere.')),
     memoryOnly ? h('div', { class: 'notice' }, 'Your browser is blocking storage, so changes will be lost when you close this page.') : null,
     S.me ? [h('h2', null, 'Account'), btn('Edit profile', () => go({ name: 'edit' })), LIVE ? btn('Sign out', async () => { await API.signOut(); ui.stack = []; ui.tab = 'home'; await refresh(); ui.focus = true; render(); }) : null] : null,
+    S.me && LIVE ? [h('h2', null, 'Alerts on this device'), pushCard(false)] : null,
     h('h2', null, 'Help'), btn('Show the tour again', () => showTour()), btn('What’s new in Beyond', () => showWhatsNew(null)),
     h('h2', null, 'Language'), langPicker(), h('h2', null, 'Read the details'), doc('Privacy Policy', 'privacy'), doc('Terms of Service', 'terms'), doc('Cookies & tracking', 'cookies'), doc('Pricing & refunds', 'pricing'),
     S.me ? [h('h2', null, 'Delete my data'), h('p', { class: 'muted' }, 'Removes your account and everything you added. This cannot be undone.'), box, err] : null,
@@ -579,7 +624,7 @@ function legalDocs() {
       ['What we collect', 'From Google sign-in: your name and email address. From you: username, optional photo, bio, current quest, education stage, interests, posts, comments, likes, follows, private messages you send and receive, people you block, saved and completed opportunities, and reports you file. We also record that you confirmed your age and accepted these policies, with the date, and which posts you have viewed (only to count views).'],
       ['Why', 'Your email is used only to sign you in and contact you about your account. Everything else powers the features you use: your profile, the feed, recommendations and your history. We do not collect passwords, contacts, precise location or device identifiers.'],
       ['Who can see what', 'Your name, username, photo, bio, quest, stage, interests and posts are visible to other signed-in Beyonders. Your email is never shown to other people. Posts show how many people viewed them, never who. Private messages are visible only to you and the person you write to. Only people who follow each other can message each other, and either person can block, report or delete a chat. We do not read private messages, except the last 10 messages of a chat that someone reports to us.'],
-      ['Where it is stored', 'In a database, file storage and sign-in service provided by Supabase. Sign-in uses Google. Fonts load from Google Fonts and one code library loads from jsDelivr, which may receive your IP address and browser details when the page opens.'],
+      ['Where it is stored', 'In a database, file storage and sign-in service provided by Supabase. Sign-in uses Google. Fonts load from Google Fonts and one code library loads from jsDelivr, which may receive your IP address and browser details when the page opens. If you turn on alerts, your browser’s push address (issued by its maker, such as Google, Apple or Mozilla) is saved so we can send them, and it is removed when you turn alerts off or delete your account. Alerts show who wrote or reacted, never message text.'],
       ['Retention', 'We keep your data until you delete your account. Deleting your account removes your profile, photo, posts, comments, likes, follows, saved and completed items. Reports you filed about other content may be kept for safety review without your name attached where possible.'],
       ['Your rights and deletion', 'You can edit your profile at any time and delete your account in Settings, Privacy & data. For any other request, contact ' + em + '.'],
       ['Age', 'Beyond is for people aged ' + age + ' or older. If you are a parent or guardian and believe a younger child has an account, contact ' + em + '.'],

@@ -29,7 +29,7 @@ const srv = http.createServer((q, r) => { let f = path.join(root, decodeURICompo
     // existing person who saw an older version
     await page.evaluate(() => localStorage.setItem('beyond:seenVersion', '2026-01-01'));
     await page.reload(); await page.waitForSelector('.modal');
-    ok((await page.$$('.newlist li')).length === 6, lang + ': what is new lists 6 items');
+    ok((await page.$$('.newlist li')).length === 8, lang + ': what is new lists 8 items (two releases)');
     await page.screenshot({ path: '/tmp/claude-0/new_' + lang + '.png' });
     await page.keyboard.press('Escape'); await page.waitForTimeout(80);
     ok((await page.$$('.modal')).length === 0, lang + ': Escape closes');

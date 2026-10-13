@@ -313,5 +313,19 @@ window.I18N.ja = {
   "See your followers and who you follow": "フォロワーとフォロー中の人を確認できます",
   "See how many people viewed a post": "投稿を見た人数が分かります",
   "Notifications for likes, comments and new followers": "いいね、コメント、新しいフォロワーの通知",
-  "New opportunities from the Arab region and Central Asia": "アラブ地域と中央アジアの新しいチャンス"
+  "New opportunities from the Arab region and Central Asia": "アラブ地域と中央アジアの新しいチャンス",
+  "Alerts on this device": "このデバイスでの通知",
+  "Alerts are on for this device.": "このデバイスでは通知がオンです。",
+  "Get alerts even when Beyond is closed.": "Beyondを閉じていても通知を受け取れます。",
+  "Alerts are blocked in your browser settings. Allow notifications for this site to turn them on.": "ブラウザの設定で通知がブロックされています。このサイトの通知を許可するとオンにできます。",
+  "On iPhone: tap Share, then Add to Home Screen, open Beyond from your Home Screen, and come back here.": "iPhoneの場合：共有をタップ、ホーム画面に追加し、ホーム画面からBeyondを開いてここに戻ってください。",
+  "Your browser does not support alerts.": "お使いのブラウザは通知に対応していません。",
+  "Alerts never show message text, only who wrote.": "通知にメッセージ本文は表示されません。誰からかだけ表示されます。",
+  "Turn on alerts": "通知をオンにする",
+  "Turn off alerts": "通知をオフにする",
+  "Alerts are turned on.": "通知をオンにしました。",
+  "Alerts are turned off.": "通知をオフにしました。",
+  "Could not turn on alerts.": "通知をオンにできませんでした。",
+  "Alerts on your phone even when Beyond is closed (turn them on in Settings)": "Beyondを閉じていてもスマホに通知が届きます（設定でオンにできます）",
+  "A short tour for new people and this What’s new window": "新しい人向けの簡単なツアーと、この「新機能」ウィンドウ"
 };
