@@ -35,6 +35,8 @@ const P = {
   share: '<path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 14v6h14v-6"/>',
   bell: '<path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/>',
   eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+  send: '<path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4z"/>',
   link: '<path d="M10 14a4 4 0 0 0 5.700 0l3-3a4 4 0 0 0-5.700-5.700l-1 1"/><path d="M14 10a4 4 0 0 0-5.700 0l-3 3a4 4 0 0 0 5.700 5.700l1-1"/>'
 };
 function icon(name, size, fill) {
@@ -94,7 +96,7 @@ function demoSeed() {
       { id: 'demo-p2', author_id: DEMO_ID, type: 'Question', opp_id: null, created_at: new Date(t - 7200e3).toISOString(), body: 'What are you building or learning this month? Share it as a Project post.' },
       { id: 'demo-p3', author_id: DEMO_ID, type: 'Discussion', opp_id: 'cs50x', created_at: new Date(t - 86400e3).toISOString(), body: 'Starting from zero in coding? CS50x says it is for people with or without prior programming experience. What did you start with?' }
     ],
-    post_likes: [], comment_likes: [], post_views: [], comments: [], follows: [], post_saves: [], saved_opportunities: [], completed_opportunities: [], reports: []
+    post_likes: [], comment_likes: [], post_views: [], comments: [], follows: [], post_saves: [], saved_opportunities: [], completed_opportunities: [], reports: [], messages: [], blocks: []
   };
 }
 const LocalAPI = {
@@ -110,9 +112,25 @@ const LocalAPI = {
     if (!this.db.profiles.find((p) => p.id === id)) this.db.profiles.push({ id, username: 'beyonder', display_name: '', bio: '', avatar_url: null, quest: '', stage: '', interests: [], is_public: true, onboarded: false, consent_at: nowIso(), min_age: OWNER.minAge });
     this.save();
   },
-  async loadAll() { const d = this.db; return { profiles: d.profiles.slice(), posts: d.posts.slice(), post_likes: d.post_likes.slice(), comment_likes: (d.comment_likes || []).slice(), comments: d.comments.slice(), follows: d.follows.slice(), post_saves: d.post_saves.slice(), saved_opportunities: d.saved_opportunities.slice(), completed_opportunities: d.completed_opportunities.slice(), notifications: [], view_counts: this.viewCounts(), opportunities: null }; },
+  async loadAll() { const d = this.db; return { profiles: d.profiles.slice(), posts: d.posts.slice(), post_likes: d.post_likes.slice(), comment_likes: (d.comment_likes || []).slice(), comments: d.comments.slice(), follows: d.follows.slice(), post_saves: d.post_saves.slice(), saved_opportunities: d.saved_opportunities.slice(), completed_opportunities: d.completed_opportunities.slice(), notifications: [], messages: this.myMessages(), blocks: (d.blocks || []).filter((b) => b.blocker_id === d.meId), view_counts: this.viewCounts(), opportunities: null }; },
   async loadNotifications() { return []; },
   async markAllRead() {},
+  myMessages() { const d = this.db, me = d.meId; return (d.messages || []).filter((m) => (m.sender_id === me && !m.hidden_by_sender) || (m.recipient_id === me && !m.hidden_by_recipient)).map((m) => Object.assign({}, m)); },
+  async loadMessages() { return this.myMessages(); },
+  async sendMessage(to, body) {
+    const d = this.db, me = d.meId, clean = String(body || '').trim();
+    if (!me || !to || to === me) throw new Error('Invalid recipient');
+    if (clean.length < 1 || clean.length > 1000) throw new Error('Message must be 1 to 1000 characters');
+    const f = (a, b) => d.follows.some((x) => x.follower_id === a && x.following_id === b);
+    if (!f(me, to) || !f(to, me)) throw new Error('You can only message people who follow you back');
+    if ((d.blocks || []).some((b) => (b.blocker_id === me && b.blocked_id === to) || (b.blocker_id === to && b.blocked_id === me))) throw new Error('You can not message this person');
+    d.messages = d.messages || [];
+    const m = { id: uid(), sender_id: me, recipient_id: to, body: clean, created_at: nowIso(), read_at: null, hidden_by_sender: false, hidden_by_recipient: false };
+    d.messages.push(m); this.save(); return Object.assign({}, m);
+  },
+  async markConversationRead(other) { const d = this.db; (d.messages || []).forEach((m) => { if (m.recipient_id === d.meId && m.sender_id === other && !m.read_at) m.read_at = nowIso(); }); this.save(); },
+  async hideConversation(other) { const d = this.db; (d.messages || []).forEach((m) => { if (m.sender_id === d.meId && m.recipient_id === other) m.hidden_by_sender = true; if (m.recipient_id === d.meId && m.sender_id === other) m.hidden_by_recipient = true; }); this.save(); },
+  async reportConversation() {},
   viewCounts() { const d = this.db, by = {}; (d.post_views || []).forEach((v) => { const p = d.posts.find((x) => x.id === v.post_id); if (p && p.author_id !== v.user_id) by[v.post_id] = (by[v.post_id] || 0) + 1; }); return Object.keys(by).map((k) => ({ post_id: k, views: by[k] })); },
   async markViews(ids) { const d = this.db; d.post_views = d.post_views || []; const me = d.meId, fresh = []; ids.forEach((id) => { const p = d.posts.find((x) => x.id === id); if (p && p.author_id !== me && !d.post_views.some((v) => v.post_id === id && v.user_id === me)) { d.post_views.push({ post_id: id, user_id: me }); fresh.push(id); } }); this.save(); return fresh; },
   async insert(t, row) { const r = Object.assign({ id: uid(), created_at: nowIso() }, row); this.db[t].push(r); this.save(); return r; },
@@ -139,16 +157,22 @@ const SupaAPI = {
   async signOut() { await this.sb.auth.signOut(); },
   async loadAll(userId) {
     const sel = (t, f) => { let q = this.sb.from(t).select('*'); if (f) q = f(q); return q.then(({ data, error }) => { if (error) throw error; return data || []; }); };
-    const [profiles, posts, post_likes, comment_likes, comments, follows, post_saves, saved_opportunities, completed_opportunities, notifications, view_counts, opportunities] = await Promise.all([
+    const [profiles, posts, post_likes, comment_likes, comments, follows, post_saves, saved_opportunities, completed_opportunities, notifications, messages, blocks, view_counts, opportunities] = await Promise.all([
       sel('profiles'), userId ? sel('posts', (q) => q.order('created_at', { ascending: false }).limit(200)) : [],
       userId ? sel('post_likes', (q) => q.limit(5000)) : [], userId ? sel('comment_likes', (q) => q.limit(8000)).catch(() => []) : [], userId ? sel('comments', (q) => q.order('created_at', { ascending: true }).limit(3000)) : [],
       userId ? sel('follows') : [], userId ? sel('post_saves') : [], userId ? sel('saved_opportunities') : [], userId ? sel('completed_opportunities') : [], userId ? sel('notifications', (q) => q.order('created_at', { ascending: false }).limit(50)).catch(() => []) : [],
+      userId ? sel('messages', (q) => q.order('created_at', { ascending: true }).limit(1000)).catch(() => []) : [], userId ? sel('blocks').catch(() => []) : [],
       userId ? this.sb.rpc('post_view_counts').then(({ data, error }) => (error ? [] : data || [])) : [],
       sel('opportunities', (q) => q.eq('published', true))
     ]);
-    return { profiles, posts, post_likes, comment_likes, comments, follows, post_saves, saved_opportunities, completed_opportunities, notifications, view_counts, opportunities };
+    return { profiles, posts, post_likes, comment_likes, comments, follows, post_saves, saved_opportunities, completed_opportunities, notifications, messages, blocks, view_counts, opportunities };
   },
   async loadNotifications() { const { data, error } = await this.sb.from('notifications').select('*').order('created_at', { ascending: false }).limit(50); if (error) throw error; return data || []; },
+  async loadMessages() { const { data, error } = await this.sb.from('messages').select('*').order('created_at', { ascending: true }).limit(1000); if (error) throw error; return data || []; },
+  async sendMessage(to, body) { const { data, error } = await this.sb.rpc('send_message', { to_id: to, msg: body }); if (error) throw error; return data; },
+  async markConversationRead(other) { const { error } = await this.sb.rpc('mark_conversation_read', { other }); if (error) throw error; },
+  async hideConversation(other) { const { error } = await this.sb.rpc('hide_conversation', { other }); if (error) throw error; },
+  async reportConversation(other, why) { const { error } = await this.sb.rpc('report_conversation', { other, why }); if (error) throw error; },
   async markViews(ids) { const { data, error } = await this.sb.rpc('record_post_views', { ids }); if (error) throw error; return data || []; },
   async markAllRead() { const { error } = await this.sb.from('notifications').update({ read_at: nowIso() }).is('read_at', null); if (error) throw error; },
   async insert(t, row, want) {
@@ -167,7 +191,7 @@ const SupaAPI = {
 const API = LIVE ? SupaAPI : LocalAPI;
 
 /* ---------- shared state + derived helpers ---------- */
-const S = { ready: false, me: null, user: null, profiles: [], posts: [], post_likes: [], comment_likes: [], comments: [], follows: [], post_saves: [], saved_opportunities: [], completed_opportunities: [], notifications: [], views: {}, opps: BUILTIN_OPPS };
+const S = { ready: false, me: null, user: null, profiles: [], posts: [], post_likes: [], comment_likes: [], comments: [], follows: [], post_saves: [], saved_opportunities: [], completed_opportunities: [], notifications: [], messages: [], blocks: [], views: {}, opps: BUILTIN_OPPS };
 let hidden = new Set(); try { hidden = new Set(JSON.parse(localStorage.getItem('beyond:hidden') || '[]')); } catch (e) {}
 const getOpp = (id) => S.opps.find((o) => o.id === id);
 const getUser = (id) => S.profiles.find((p) => p.id === id);
@@ -186,6 +210,17 @@ const likesReceived = (id) => postsBy(id).reduce((n, p) => n + likeCount(p.id), 
 const mySaved = () => S.saved_opportunities.filter((r) => r.user_id === myId()).map((r) => r.opp_id);
 const viewCount = (pid) => S.views[pid] || 0;
 const unreadCount = () => S.notifications.filter((n) => !n.read_at).length;
+/* ---------- private messages: only between people who follow each other ---------- */
+const isMutual = (id) => isFollowing(id) && S.follows.some((f) => f.follower_id === id && f.following_id === myId());
+const iBlocked = (id) => S.blocks.some((b) => b.blocker_id === myId() && b.blocked_id === id);
+const chatWith = (id) => S.messages.filter((m) => (m.sender_id === id && m.recipient_id === myId()) || (m.sender_id === myId() && m.recipient_id === id)).sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
+const unreadFrom = (id) => S.messages.filter((m) => m.sender_id === id && m.recipient_id === myId() && !m.read_at).length;
+const unreadMessages = () => S.messages.filter((m) => m.recipient_id === myId() && !m.read_at).length;
+function conversations() {
+  const by = {};
+  S.messages.forEach((m) => { const o = m.sender_id === myId() ? m.recipient_id : m.sender_id; if (!by[o] || by[o].created_at < m.created_at) by[o] = m; });
+  return Object.keys(by).map((o) => ({ other: o, last: by[o], unread: unreadFrom(o) })).sort((a, b) => (a.last.created_at < b.last.created_at ? 1 : -1));
+}
 const myDone = () => S.completed_opportunities.filter((r) => r.user_id === myId()).map((r) => r.opp_id);
 
 async function refresh() {

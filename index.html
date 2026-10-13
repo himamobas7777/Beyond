@@ -140,6 +140,19 @@ nav.tabs button[aria-current="page"] { color: var(--accent); font-weight: 800; }
 .bell .badge[hidden] { display: none; }
 .notif { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 8px; background: none; border: 0; border-bottom: 1px solid var(--line); color: var(--fg); font: inherit; text-align: start; cursor: pointer; min-height: 56px; }
 .notif.unread { background: var(--surface); }
+.chat-title { display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center; font-family: var(--font-display); font-weight: 800; min-width: 0; } .chat-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.in-chat nav.tabs { display: none; }
+.bubbles { display: flex; flex-direction: column; gap: 6px; padding: 8px 0 16px; }
+.bubble { max-width: 82%; padding: 8px 12px; border-radius: 18px; overflow-wrap: anywhere; white-space: pre-wrap; line-height: 1.4; }
+.bubble.mine { align-self: flex-end; background: var(--accent); color: var(--on-accent); border-end-end-radius: 6px; }
+.bubble.theirs { align-self: flex-start; background: var(--surface2); border-end-start-radius: 6px; }
+.bubble .bmeta { font-size: .72rem; opacity: .75; margin-top: 2px; }
+.composer { position: sticky; bottom: 0; display: flex; gap: 8px; align-items: flex-end; padding: 8px 0 12px; background: var(--bg); }
+.composer textarea { min-height: 44px; max-height: 120px; resize: none; flex: 1; }
+.composer .send-btn { width: 48px; min-width: 48px; height: 48px; padding: 0; margin: 0; display: grid; place-items: center; flex: none; }
+.composer.note { justify-content: center; text-align: center; }
+[dir="rtl"] .send-btn .ic { transform: scaleX(-1); }
+
 .notif .ntext { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .notif .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex: none; }
 

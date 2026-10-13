@@ -5,8 +5,8 @@ const TYPE_COLOR = { Discovery: '#22D3EE', Experience: '#A78BFA', Question: '#FB
 const $ = (s) => document.querySelector(s);
 
 /* ---------- navigation ---------- */
-function go(route) { ui.stack.push(route); ui.focus = true; ui.menu = null; render(); window.scrollTo(0, 0); }
-function back() { ui.stack.pop(); ui.focus = true; ui.menu = null; render(); window.scrollTo(0, 0); }
+function go(route) { ui.stack.push(route); ui.focus = true; ui.menu = null; ui.chatMenu = null; render(); window.scrollTo(0, 0); }
+function back() { ui.stack.pop(); ui.focus = true; ui.menu = null; ui.chatMenu = null; render(); window.scrollTo(0, 0); }
 function setTab(t) { ui.stack = []; ui.tab = t; ui.focus = true; ui.menu = null; render(); window.scrollTo(0, 0); }
 function requireAuth() { if (S.me) return true; go({ name: 'signin' }); return false; }
 let toastTimer = null;
@@ -124,6 +124,86 @@ function notificationsView() {
     list.length ? [unreadCount() ? markAll : null, h('div', null, list.map(row))] : empty('No notifications yet', 'When someone likes, comments on or follows you, it shows up here.'));
 }
 
+
+/* ---------- PRIVATE MESSAGES (only between people who follow each other) ---------- */
+function msgButton() {
+  const n = unreadMessages();
+  return h('button', { class: 'bell msgbtn plain', type: 'button', 'aria-label': t('Messages, {n} unread', { n }), onclick: () => { if (requireAuth()) go({ name: 'inbox' }); } }, icon('mail', 24), h('span', { class: 'badge', hidden: n === 0 }, n > 9 ? '9+' : String(n)));
+}
+function updateMsgBadge() {
+  const n = unreadMessages();
+  document.querySelectorAll('.msgbtn').forEach((b) => { b.setAttribute('aria-label', t('Messages, {n} unread', { n })); const g = b.querySelector('.badge'); if (g) { g.hidden = n === 0; g.textContent = n > 9 ? '9+' : String(n); } });
+}
+const topRoute = () => (ui.stack.length ? ui.stack[ui.stack.length - 1] : null);
+async function pollMessages() {
+  if (!S.me || document.visibilityState !== 'visible') return;
+  const r = topRoute(); const open = r && (r.name === 'chat' || r.name === 'inbox');
+  try {
+    const list = await API.loadMessages();
+    const changed = list.length !== S.messages.length || list.some((m, i) => !S.messages[i] || m.id !== S.messages[i].id || (m.read_at || '') !== (S.messages[i].read_at || ''));
+    S.messages = list; updateMsgBadge();
+    if (r && r.name === 'chat' && unreadFrom(r.id)) markChatRead(r.id);
+    if (open && changed) { const box = document.getElementById('msg-in'); const had = box && document.activeElement === box; render(); if (had) { const b2 = document.getElementById('msg-in'); if (b2) b2.focus(); } }
+  } catch (e) { /* try again next time */ }
+}
+async function markChatRead(id) {
+  S.messages.forEach((m) => { if (m.sender_id === id && m.recipient_id === myId() && !m.read_at) m.read_at = nowIso(); });
+  updateMsgBadge();
+  try { await API.markConversationRead(id); } catch (e) { /* will be marked again on the next open */ }
+}
+function inboxView() {
+  const list = conversations().filter((c) => getUser(c.other));
+  const row = (c) => {
+    const u = getUser(c.other), mine = c.last.sender_id === myId();
+    return h('button', { class: 'notif' + (c.unread ? ' unread' : ''), type: 'button', 'data-k': 'ib-' + c.other, onclick: () => go({ name: 'chat', id: c.other }) },
+      avatar(u, 48),
+      h('span', { class: 'ntext' }, h('b', null, utext(u.display_name || '‎@' + u.username)), h('span', { class: 'muted small', dir: 'auto', style: 'display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis' }, utext((mine ? t('You') + ': ' : '') + c.last.body))),
+      h('span', { class: 'muted small' }, utext(ago(c.last.created_at))), c.unread ? h('span', { class: 'dot', 'aria-hidden': 'true' }) : null);
+  };
+  const friends = S.follows.filter((f) => f.follower_id === myId() && isMutual(f.following_id)).map((f) => getUser(f.following_id)).filter((u) => u && !conversations().some((c) => c.other === u.id));
+  return h('div', null, backHeader('Messages'),
+    h('p', { class: 'muted small' }, 'You can message people who follow you back.'),
+    list.length ? h('div', null, list.map(row)) : empty('No messages yet', 'Follow someone and ask them to follow you back. Then you can chat here.'),
+    friends.length ? [h('h2', null, 'Start a chat'), friends.map((u) => h('div', { class: 'person' }, h('button', { class: 'person-main', type: 'button', onclick: () => go({ name: 'chat', id: u.id }), 'aria-label': t('Message {name}', { name: u.display_name || u.username }) }, avatar(u, 48), h('span', null, h('b', null, utext(u.display_name || '‎@' + u.username)), h('span', { class: 'muted small', style: 'display:block' }, utext('‎@' + u.username)))), h('button', { class: 'btn small-btn primary', type: 'button', onclick: () => go({ name: 'chat', id: u.id }) }, 'Message')))] : null);
+}
+function chatView(r) {
+  const u = getUser(r.id);
+  if (!u || u.id === myId()) return h('div', null, backHeader('Messages'), empty('Profile not found', 'It may have been removed.'));
+  if (unreadFrom(u.id)) markChatRead(u.id);
+  const msgs = chatWith(u.id), blocked = iBlocked(u.id), ok = isMutual(u.id) && !blocked;
+  ui.mdraft = ui.mdraft || {};
+  const nm = u.display_name || '‎@' + u.username;
+  const header = h('div', { class: 'header' }, h('button', { class: 'back', type: 'button', onclick: back }, (LANG === 'ar' ? '› ' : '‹ ') + t('Back')),
+    h('button', { class: 'plain chat-title', type: 'button', onclick: () => go({ name: 'user', id: u.id }), 'aria-label': t('Open profile of {name}', { name: u.display_name || u.username }) }, avatar(u, 30), h('span', null, utext(nm))),
+    h('button', { class: 'back', style: 'text-align:end', type: 'button', 'aria-label': 'More options', onclick: () => { ui.chatMenu = ui.chatMenu ? null : { step: 0 }; render(); } }, icon('more', 24)));
+  const menu = ui.chatMenu ? h('div', { class: 'menu', role: 'group', 'aria-label': 'Chat options' },
+    btn(blocked ? 'Unblock this person' : 'Block this person', async () => {
+      ui.chatMenu = null;
+      try { if (blocked) { S.blocks = S.blocks.filter((b) => b.blocked_id !== u.id); render(); await API.remove('blocks', { blocker_id: myId(), blocked_id: u.id }); toast('Unblocked.'); } else { S.blocks = S.blocks.concat({ blocker_id: myId(), blocked_id: u.id }); render(); await API.insert('blocks', { blocker_id: myId(), blocked_id: u.id }); toast('Blocked. They can no longer message you.'); } } catch (e) { await refresh(); render(); toast(errText(e)); }
+    }),
+    ui.chatMenu.step === 0 ? btn('Report this chat', () => { ui.chatMenu.step = 1; render(); }) : (ui.chatMenu.step === 2 ? null : btn('Confirm report', async () => {
+      ui.chatMenu = null; render();
+      try { await API.reportConversation(u.id, 'Reported from chat'); toast('Thanks. We will review it. The last 10 messages are sent to us.'); } catch (e) { toast(errText(e)); }
+    }, 'danger')),
+    ui.chatMenu.step === 0 ? btn('Delete this chat for me', () => { ui.chatMenu.step = 2; render(); }) : (ui.chatMenu.step === 2 ? btn('Confirm delete', async () => {
+      ui.chatMenu = null;
+      try { await API.hideConversation(u.id); S.messages = S.messages.filter((m) => m.sender_id !== u.id && m.recipient_id !== u.id); ui.stack.pop(); render(); toast('Chat deleted for you.'); } catch (e) { render(); toast(errText(e)); }
+    }, 'danger') : null)) : null;
+  const bubble = (m) => { const mine = m.sender_id === myId(); return h('div', { class: 'bubble ' + (mine ? 'mine' : 'theirs') }, h('div', { dir: 'auto' }, utext(m.body)), h('div', { class: 'bmeta' }, utext(ago(m.created_at) + (mine && m.read_at ? ' · ' + t('Seen') : '')))); };
+  const input = h('textarea', { id: 'msg-in', dir: 'auto', rows: '1', maxlength: '1000', placeholder: 'Write a message', 'aria-label': 'Write a message', oninput: (e) => { ui.mdraft[u.id] = e.target.value; e.target.style.height = 'auto'; e.target.style.height = Math.min(120, e.target.scrollHeight) + 'px'; } });
+  input.value = ui.mdraft[u.id] || '';
+  const err = h('p', { class: 'err', 'aria-live': 'polite' });
+  const sendBtn = h('button', { class: 'btn primary send-btn', type: 'button', 'aria-label': 'Send message', onclick: async () => {
+    const body = input.value.trim(); if (!body) return; sendBtn.disabled = true; err.textContent = '';
+    try { const m = await API.sendMessage(u.id, body); S.messages = S.messages.concat(m); ui.mdraft[u.id] = ''; render(); } catch (e) { sendBtn.disabled = false; err.textContent = errText(e); }
+  } }, icon('send', 22));
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendBtn.click(); } });
+  const composer = ok ? h('div', { class: 'composer' }, input, sendBtn)
+    : h('div', { class: 'composer note' }, h('p', { class: 'muted small' }, blocked ? 'You blocked this person. Unblock them from the menu to chat again.' : 'You can only message people who follow you back.'));
+  setTimeout(() => { window.scrollTo(0, document.body.scrollHeight); }, 0);
+  return h('div', { class: 'chat' }, header, menu, h('div', { class: 'bubbles', 'aria-live': 'polite' }, msgs.length ? msgs.map(bubble) : h('p', { class: 'muted center small' }, ok ? 'Say hi. Be kind and keep it safe.' : '')), err, composer);
+}
+
 function langPicker() {
   return h('div', { class: 'lang-pick' }, h('select', { id: 'lang-sel', 'aria-label': 'Language', onchange: (e) => setLang(e.target.value, true) }, LANGS.map(([c, n]) => h('option', { value: c, selected: c === LANG }, utext(n)))));
 }
@@ -194,7 +274,7 @@ function home() {
   const recs = recommend(interests, myDone(), 4);
   const pending = mySaved().filter((id) => !myDone().includes(id)).map(getOpp).filter(Boolean).slice(0, 3);
   const latest = S.posts.filter((p) => !hidden.has(p.id)).slice(0, 2);
-  return h('div', null, h('div', { class: 'brand-row' }, h('div', { class: 'brand' }, 'BEYOND'), me && LIVE ? bellButton() : null), h('h1', { tabindex: '-1', style: 'margin-top:8px' }, t('Hey {name}.', { name })), h('p', { class: 'muted' }, 'What’s your Beyond today?'),
+  return h('div', null, h('div', { class: 'brand-row' }, h('div', { class: 'brand' }, 'BEYOND'), me ? h('div', { class: 'row tight', style: 'gap:0' }, msgButton(), LIVE ? bellButton() : null) : null), h('h1', { tabindex: '-1', style: 'margin-top:8px' }, t('Hey {name}.', { name })), h('p', { class: 'muted' }, 'What’s your Beyond today?'),
     me ? h('button', { class: 'card quest', type: 'button', onclick: () => setTab('profile'), 'aria-label': 'Your current quest. Open profile to change it.' }, h('div', { class: 'label' }, 'Current quest'), h('div', { class: 'quest-text' }, me.quest ? utext(me.quest) : 'What are you trying to explore right now? Set your quest.'))
       : h('div', { class: 'card quest' }, h('div', { class: 'label' }, 'You are browsing as a guest'), h('p', { style: 'margin:6px 0 0' }, 'Sign in to save things, post and follow people.'), btn('Sign in', () => go({ name: 'signin' }), 'primary')),
     h('h2', null, interests.length ? 'Picked for your interests' : 'Your next move'), interests.length ? null : h('p', { class: 'muted' }, 'Add interests in your profile to get better picks.'),
@@ -354,6 +434,7 @@ function profileView(u, isMe) {
       h('div', { class: 'stats' }, statBlock(followingOf(u.id).length, 'Following', () => go({ name: 'people', id: u.id, tab: 'following' })), statBlock(followersOf(u.id).length, 'Followers', () => go({ name: 'people', id: u.id, tab: 'followers' })), statBlock(likesReceived(u.id), 'Likes')),
       h('div', { class: 'pbtns' },
         isMe ? btn('Edit profile', () => go({ name: 'edit' }), 'sec') : h('button', { class: 'btn ' + (f ? 'sec' : 'primary'), type: 'button', 'aria-pressed': String(f), onclick: () => toggleFollow(u.id) }, f ? 'Following' : 'Follow'),
+        isMe ? null : h('button', { class: 'btn sec', type: 'button', onclick: () => { if (!requireAuth()) return; if (isMutual(u.id)) go({ name: 'chat', id: u.id }); else toast('You can only message people who follow you back.'); } }, 'Message'),
         btn('Share profile', () => copyText(location.origin + location.pathname + ' (@' + u.username + ' on Beyond)', 'Copied'), 'sec'),
         isMe ? h('button', { class: 'btn sec icon-btn', type: 'button', 'aria-label': 'Create a post', onclick: () => go({ name: 'compose' }) }, icon('plus', 22)) : null),
       u.bio ? h('p', { class: 'pbio' }, utext(u.bio)) : (isMe ? h('p', { class: 'pbio muted' }, 'Add a bio so people know who you are.') : null),
@@ -407,7 +488,7 @@ function settings() {
   const draw = () => {
     if (!confirmingDelete) box.replaceChildren(btn('Delete my account and data', () => { confirmingDelete = true; draw(); }, 'danger'));
     else box.replaceChildren(h('div', { class: 'notice', role: 'alertdialog', 'aria-label': 'Confirm deletion' }, h('h3', null, 'Delete everything?'),
-      h('p', null, LIVE ? 'This permanently deletes your account, profile, photo, posts, comments, likes, follows, saved and completed items. It cannot be undone.' : 'This permanently removes your profile, posts, saved and completed items from this device. It cannot be undone.'),
+      h('p', null, LIVE ? 'This permanently deletes your account, profile, photo, posts, comments, likes, follows, private messages, saved and completed items. It cannot be undone.' : 'This permanently removes your profile, posts, saved and completed items from this device. It cannot be undone.'),
       btn('Yes, delete everything', async () => { try { await API.deleteAccount(); confirmingDelete = false; ui.stack = []; ui.tab = 'home'; ui.guest = false; ui.wStep = 0; ui.consent = { age: false, terms: false }; await refresh(); ui.focus = true; render(); toast('Your data was deleted.'); } catch (e) { err.textContent = errText(e); } }, 'danger'),
       btn('Cancel', () => { confirmingDelete = false; draw(); })));
   };
@@ -427,9 +508,9 @@ function legalDocs() {
   return {
     privacy: ['Privacy Policy', live ? [
       ['Who we are', 'Beyond is run by ' + who + '. Contact: ' + em + '.'],
-      ['What we collect', 'From Google sign-in: your name and email address. From you: username, optional photo, bio, current quest, education stage, interests, posts, comments, likes, follows, saved and completed opportunities, and reports you file. We also record that you confirmed your age and accepted these policies, with the date, and which posts you have viewed (only to count views).'],
+      ['What we collect', 'From Google sign-in: your name and email address. From you: username, optional photo, bio, current quest, education stage, interests, posts, comments, likes, follows, private messages you send and receive, people you block, saved and completed opportunities, and reports you file. We also record that you confirmed your age and accepted these policies, with the date, and which posts you have viewed (only to count views).'],
       ['Why', 'Your email is used only to sign you in and contact you about your account. Everything else powers the features you use: your profile, the feed, recommendations and your history. We do not collect passwords, contacts, precise location or device identifiers.'],
-      ['Who can see what', 'Your name, username, photo, bio, quest, stage, interests and posts are visible to other signed-in Beyonders. Your email is never shown to other people. Posts show how many people viewed them, never who.'],
+      ['Who can see what', 'Your name, username, photo, bio, quest, stage, interests and posts are visible to other signed-in Beyonders. Your email is never shown to other people. Posts show how many people viewed them, never who. Private messages are visible only to you and the person you write to. Only people who follow each other can message each other, and either person can block, report or delete a chat. We do not read private messages, except the last 10 messages of a chat that someone reports to us.'],
       ['Where it is stored', 'In a database, file storage and sign-in service provided by Supabase. Sign-in uses Google. Fonts load from Google Fonts and one code library loads from jsDelivr, which may receive your IP address and browser details when the page opens.'],
       ['Retention', 'We keep your data until you delete your account. Deleting your account removes your profile, photo, posts, comments, likes, follows, saved and completed items. Reports you filed about other content may be kept for safety review without your name attached where possible.'],
       ['Your rights and deletion', 'You can edit your profile at any time and delete your account in Settings, Privacy & data. For any other request, contact ' + em + '.'],
@@ -447,7 +528,7 @@ function legalDocs() {
       ['Your account', 'You are responsible for your account. Keep your sign-in secure and give accurate information.'],
       ['Your content', 'You own what you post. You give Beyond permission to show it to other users inside the service. Do not post anything you do not have the right to share.'],
       ['Not allowed', 'Harassment, hate, sexual content, threats, spam, scams, sharing other people’s private information, pretending to be someone else, or trying to break or misuse the service. Do not try to meet or contact other users in unsafe ways.'],
-      ['Reports and moderation', 'You can report posts. We may remove content or suspend accounts that break these terms.'],
+      ['Reports and moderation', 'You can report posts and private chats. We may remove content or suspend accounts that break these terms. Never share passwords, addresses or other private details in messages.'],
       ['Opportunities', 'Opportunities link to official pages run by other organizations. Beyond does not control those sites and does not guarantee acceptance, scholarships, admission, jobs or any outcome. Posts and opinions from users are not verified facts.'],
       ['Availability', 'Beyond is provided as is and may change, pause or stop at any time.'],
       ['Liability', 'To the extent the law allows, Beyond is not liable for losses from using it or from third-party opportunities.'],
@@ -471,7 +552,7 @@ function legal(doc) {
 function routeView(r) {
   switch (r.name) {
     case 'detail': return detail(r.id); case 'post': return postView(r.id); case 'user': return userView(r.id); case 'edit': return editProfile();
-    case 'notifications': return notificationsView(); case 'people': return peopleView(r);
+    case 'notifications': return notificationsView(); case 'people': return peopleView(r); case 'inbox': return inboxView(); case 'chat': return chatView(r);
     case 'compose': return composeView(r); case 'settings': return settings(); case 'legal': return legal(r.doc);
     case 'signin': return h('div', null, backHeader('Sign in'), h('h1', { tabindex: '-1' }, 'Join the Beyonders'), consentBlock());
     default: return h('div', null, 'Not found');
@@ -487,7 +568,7 @@ function render() {
   else if (LIVE ? (!S.me && !ui.guest) : !S.me) view = welcome();
   else if (S.me && !S.me.onboarded) view = onboarding();
   else { view = { home, explore, feed, profile: profileTab }[ui.tab](); showTabs = true; }
-  app.replaceChildren(view); tabs.hidden = !showTabs; tabs.setAttribute('aria-label', t('Main navigation'));
+  app.replaceChildren(view); document.body.classList.toggle('in-chat', !!(top && top.name === 'chat')); tabs.hidden = !showTabs; tabs.setAttribute('aria-label', t('Main navigation'));
   tabs.replaceChildren(h('div', { class: 'inner' }, [['home', 'Home'], ['explore', 'Explore'], ['feed', 'Feed'], ['profile', 'Profile']].map(([k, l]) => h('button', { type: 'button', 'aria-current': ui.tab === k ? 'page' : null, onclick: () => setTab(k) }, icon(k, 24), l))));
   if (ui.focus) { const hd = app.querySelector('h1'); if (hd) hd.focus({ preventScroll: true }); ui.focus = false; }
   else if (window.__lastKey) { const a = app.querySelector('[data-k="' + window.__lastKey.replace(/"/g, '') + '"]'); if (a) a.focus({ preventScroll: true }); }
