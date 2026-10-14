@@ -26,6 +26,7 @@ function pathItems(d) {
   (d.funding || []).forEach((x, i) => it.push({ key: 'f' + i, kind: 'Money', head: x.name, body: x.note, src: x.url }));
   return it;
 }
+const CTRY_LABEL = { usa: 'USA', uk: 'UK', germany: 'Germany', canada: 'Canada', turkey: 'Turkey', uae: 'UAE' };
 const KIND_COLOR = { When: '#22D3EE', Document: '#60A5FA', Test: '#FBBF24', English: '#A78BFA', Language: '#A78BFA', Visa: '#F472B6', Money: '#4ADE80' };
 
 /* ---------- entry: wizard or plan ---------- */
@@ -77,11 +78,15 @@ function planView(p) {
   const sys = PATH_SYSTEMS.find((s) => s[0] === p.system) || PATH_SYSTEMS[2];
   const egSys = (PATH_EGYPT.systems || []).find((s) => s.id === p.system);
   const notes = (d.egyptian_notes || []);
+  const cl = CTRY_LABEL[p.country];
+  const views = (PATH_EGYPT.foreign_views || []).filter((x) => (x.country === cl || x.country === 'All') && (x.system === 'both' || x.system === p.system || x.system === 'all'));
+  const papers = (PATH_EGYPT.paperwork || []).filter((x) => x.country === cl || x.country === 'All' || x.country === 'Egypt');
   const itemCard = (x) => h('div', { class: 'card path-item' },
     h('label', { class: 'row', style: 'align-items:flex-start;gap:10px;margin:0' }, h('input', { type: 'checkbox', checked: done[x.key] ? true : null, 'data-k': 'p-' + x.key, onchange: () => toggle(x.key), 'aria-label': tr('Mark as done') + ': ' + str(x.head), style: 'width:24px;height:24px;flex:none;margin-top:2px' }),
       h('div', { style: 'flex:1;min-width:0' }, h('span', { class: 'chip-mini', style: '--chip:' + KIND_COLOR[x.kind] }, tr(x.kind)), h('div', { style: 'font-weight:800;margin-top:4px' + (done[x.key] ? ';text-decoration:line-through;opacity:.7' : '') }, utext(x.head)))),
     h('p', { style: 'margin:8px 0 4px' }, utext(x.body)), (x.ex || []).length ? h('details', null, h('summary', null, t('Examples from universities')), x.ex.map((e) => h('p', { class: 'small' }, h('b', null, utext(e.university + ': ')), utext(e.statement), ' ', srcLink(e.source)))) : null, srcLink(x.src));
   const group = (title, kinds) => { const xs = items.filter((x) => kinds.includes(x.kind)); return xs.length ? h('details', { open: title === 'Steps and dates' ? '' : null }, h('summary', { class: 'path-sum' }, tr(title) + ' (' + xs.filter((x) => done[x.key]).length + '/' + xs.length + ')'), xs.map(itemCard)) : null; };
+  const countryOpps = S.opps.filter((o) => o.published !== false && (o.tags || []).includes(p.country)).slice(0, 5);
   const nextStep = items.find((x) => !done[x.key] && x.kind === 'When');
   return h('div', null, backHeader('My Path', h('button', { class: 'btn', type: 'button', onclick: () => { Object.assign(pathDraft, { step: 0, dream: p.dream, major: p.major, country: p.country, system: p.system, year: p.year }); ui.pathEdit = true; render(); } }, 'Edit')),
     h('h1', { tabindex: '-1' }, p.dream ? t('Your path to {u}', { u: p.dream }) : 'Your path'),
@@ -93,15 +98,17 @@ function planView(p) {
     LANG !== 'en' ? h('div', { class: 'notice small' }, 'Facts are shown in English, exactly as the official source states them.') : null,
     h('h2', null, 'Your certificate abroad'),
     egSys ? h('div', { class: 'card' }, h('div', { style: 'font-weight:800' }, utext(egSys.name + ' · ' + egSys.name_ar)), h('p', null, utext(egSys.summary)), (egSys.sources || []).slice(0, 2).map((s) => h('div', null, srcLink(s)))) : null,
+    views.length ? [h('div', { class: 'muted small' }, 'What universities and official bodies say about your certificate'), views.map((x, i) => h('div', { class: i === 0 && p.country === 'germany' ? 'card notice' : 'card' }, h('div', { class: 'small muted' }, utext(x.body)), h('p', { style: 'margin:6px 0' }, utext(x.statement)), srcLink(x.source)))] : null,
     notes.map((x) => h('div', { class: 'card' }, h('p', { style: 'margin:0 0 6px' }, utext(x.note)), srcLink(x.source))),
-    notes.length ? null : h('p', { class: 'muted' }, 'No confirmed statement was found. Ask the university directly.'),
+    views.length || notes.length ? null : h('p', { class: 'muted' }, 'No confirmed statement was found. Ask the university directly.'),
+    papers.length ? h('details', { open: '' }, h('summary', { class: 'path-sum' }, tr('Papers and attestation') + ' (' + papers.length + ')'), h('p', { class: 'muted small' }, 'Egypt is not in the Apostille Convention list we checked, so documents usually go through legalisation. Always confirm with the university and the embassy.'), papers.map((x) => h('div', { class: 'card' }, h('div', { style: 'font-weight:800' }, utext(x.name)), h('p', { style: 'margin:6px 0' }, utext(x.note)), srcLink(x.source)))) : null,
     group('Steps and dates', ['When']), group('Documents', ['Document']), group('Tests and languages', ['Test', 'English', 'Language']), group('Visa and money', ['Visa', 'Money']),
     h('h2', null, 'Example universities'),
     (d.universities || []).map((u) => h('div', { class: 'card' }, h('div', { style: 'font-weight:800' }, utext(u.name)), h('p', { class: 'muted small' }, utext(u.why_example)), h('p', null, utext(u.requirements)), srcLink(u.url, 'Official page'))),
     h('h2', null, 'Official links'), (d.key_links || []).map((l) => h('div', { style: 'margin-bottom:6px' }, srcLink(l.url, l.label))),
     h('h2', null, 'Not confirmed yet'), h('p', { class: 'muted' }, 'We could not confirm these from an official page. Please check the official site before you rely on them.'),
     h('details', null, h('summary', null, t('Show {n} open points', { n: (d.unverified || []).length + (PATH_EGYPT.unverified || []).length })), (d.unverified || []).concat(PATH_EGYPT.unverified || []).map((u) => h('p', { class: 'small' }, '• ', utext(u)))),
-    h('h2', null, 'Opportunities that help your application'), recommend((S.me && S.me.interests) || [], myDone(), 3).map(oppCard), btn('Explore everything', () => setTab('explore')),
+    h('h2', null, 'Opportunities that help your application'), (countryOpps.length ? countryOpps : recommend((S.me && S.me.interests) || [], myDone(), 3)).map(oppCard), btn('Explore everything', () => setTab('explore')),
     h('p', { class: 'muted small', style: 'margin-top:20px' }, t('Last checked: {d}. Rules change every year. This is a guide, not official advice.', { d: d.last_checked })),
     btn('Start over', () => { pathSave(null); Object.assign(pathDraft, { step: 0, dream: '', major: '', country: null, system: null, year: null }); render(); }, 'danger'));
 }

@@ -1,5 +1,5 @@
 /* screens.js: navigation, actions and every screen. */
-const ui = { tab: 'home', stack: [], focus: false, guest: false, wStep: 0, exploreTab: 'opps', feedTab: 'foryou', profTab: 'posts', q: '', cat: null, free: false, arab: false, ca: false, reply: null, cdraft: null, consent: { age: false, terms: false }, menu: null, busy: false };
+const ui = { tab: 'home', stack: [], focus: false, guest: false, wStep: 0, exploreTab: 'opps', feedTab: 'foryou', profTab: 'posts', q: '', cat: null, free: false, arab: false, ca: false, eu: false, reply: null, cdraft: null, consent: { age: false, terms: false }, menu: null, busy: false };
 const POST_TYPES = ['Discovery', 'Experience', 'Question', 'Project', 'Milestone', 'Discussion'];
 const TYPE_COLOR = { Discovery: '#22D3EE', Experience: '#A78BFA', Question: '#FBBF24', Project: '#4ADE80', Milestone: '#F472B6', Discussion: '#60A5FA' };
 const $ = (s) => document.querySelector(s);
@@ -403,9 +403,9 @@ function explore() {
   function draw() {
     const n = needle(); let items = [];
     if (ui.exploreTab === 'opps') {
-      const res = S.opps.filter((o) => o.published !== false && (!ui.cat || o.category === ui.cat) && (!ui.free || o.cost === 'Free' || o.cost === 'Funded') && (!ui.arab || (o.tags || []).includes('arab')) && (!ui.ca || (o.tags || []).includes('centralasia')) && (!n || [o.title, o.org, o.descr, o.category, tr(o.category), o.grade, o.eligibility].concat(o.tags || []).join(' ').toLowerCase().includes(n)));
+      const res = S.opps.filter((o) => o.published !== false && (!ui.cat || o.category === ui.cat) && (!ui.free || o.cost === 'Free' || o.cost === 'Funded') && (!ui.arab || (o.tags || []).includes('arab')) && (!ui.ca || (o.tags || []).includes('centralasia')) && (!ui.eu || (o.tags || []).includes('europe')) && (!n || [o.title, o.org, o.descr, o.category, tr(o.category), o.grade, o.eligibility].concat(o.tags || []).join(' ').toLowerCase().includes(n)));
       items = res.length ? res.map(oppCard) : [empty('No match yet', 'Try a different word or clear a filter.')]; count.textContent = tn('{n} opportunity', '{n} opportunities', res.length);
-      filtersRow.replaceChildren(h('div', { class: 'row' }, CATEGORIES.map((c) => chip(c, ui.cat === c, () => { ui.cat = ui.cat === c ? null : c; draw(); }, CAT_COLOR[c], 'cat-' + c))), h('div', { class: 'row' }, chip('Free or funded', ui.free, () => { ui.free = !ui.free; draw(); }, null, 'free'), chip('Arab region', ui.arab, () => { ui.arab = !ui.arab; draw(); }, null, 'arab'), chip('Central Asia', ui.ca, () => { ui.ca = !ui.ca; draw(); }, null, 'ca')));
+      filtersRow.replaceChildren(h('div', { class: 'row' }, CATEGORIES.map((c) => chip(c, ui.cat === c, () => { ui.cat = ui.cat === c ? null : c; draw(); }, CAT_COLOR[c], 'cat-' + c))), h('div', { class: 'row' }, chip('Free or funded', ui.free, () => { ui.free = !ui.free; draw(); }, null, 'free'), chip('Arab region', ui.arab, () => { ui.arab = !ui.arab; draw(); }, null, 'arab'), chip('Central Asia', ui.ca, () => { ui.ca = !ui.ca; draw(); }, null, 'ca'), chip('Europe', ui.eu, () => { ui.eu = !ui.eu; draw(); }, null, 'eu')));
     } else if (ui.exploreTab === 'people') {
       const res = S.profiles.filter((u) => u.id !== myId() && (!n || [u.display_name, u.username, u.bio].concat(u.interests || []).join(' ').toLowerCase().includes(n)));
       items = res.length ? res.map(personRow) : [empty('No people found', S.me || !LIVE ? 'As more Beyonders join, you will find them here.' : 'Sign in to find people.')]; count.textContent = t('{n} people', { n: res.length }); filtersRow.replaceChildren();

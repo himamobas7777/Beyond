@@ -37,11 +37,11 @@ const srv = http.createServer((q, r) => { let f = path.join(root, decodeURICompo
     const turnOn = lang === 'ar' ? 'فعّل التنبيهات' : 'Turn on alerts', turnOff = lang === 'ar' ? 'أوقف التنبيهات' : 'Turn off alerts';
     ok((await page.$eval('#probe .btn', (e) => e.textContent)) === turnOn, lang + ': shows Turn on alerts when off');
     await page.click('#probe .btn'); await page.waitForSelector('#probe .btn.sec');
-    ok((await page.$eval('#probe .btn', (e) => e.textContent)) === turnOff, lang + ': now shows Turn off');
+    ok((await page.$eval('#probe .btn.sec', (e) => e.textContent)) === turnOff, lang + ': now shows Turn off');
     const saved = await page.evaluate(() => window.__saved);
     ok(saved && saved[0] === 'https://push.example/abc' && saved[1] === 'P' && saved[2] === 'A' && saved[3] === lang, lang + ': subscription saved with language ' + JSON.stringify(saved));
     ok(await page.evaluate(async () => (await window.__alerts.pushState()) === 'on'), lang + ': state on');
-    await page.click('#probe .btn'); await page.waitForSelector('#probe .btn.primary');
+    await page.click('#probe .btn.sec'); await page.waitForFunction((t) => document.querySelector('#probe .btn.primary') && document.querySelector('#probe .btn.primary').textContent === t, turnOn);
     ok(await page.evaluate(() => window.__sub === null && window.__removed && window.__removed[1].endpoint === 'https://push.example/abc'), lang + ': turn off unsubscribes and removes from server');
     await page.evaluate(() => { window.__answer = 'denied'; });
     await page.click('#probe .btn'); await page.waitForTimeout(150);

@@ -392,5 +392,11 @@ window.I18N.fr = {
   "My Path: a step-by-step path to your dream university, starting with Egypt to Germany, the US, UK, Canada, Turkey and the UAE": "Mon parcours : un chemin pas à pas vers ton université de rêve, de l’Égypte vers les États-Unis, le Royaume-Uni, l’Allemagne, le Canada, la Turquie et les Émirats",
   "Send a test alert": "Envoyer une alerte de test",
   "Test sent. If nothing appears in a few seconds, check the notification settings of your browser on your phone.": "Test envoyé. Si rien n’apparaît en quelques secondes, vérifie les réglages de notifications de ton navigateur sur ton téléphone.",
-  "This device was not saved. Turn alerts off and on again.": "Cet appareil n’a pas été enregistré. Désactive puis réactive les alertes."
+  "This device was not saved. Turn alerts off and on again.": "Cet appareil n’a pas été enregistré. Désactive puis réactive les alertes.",
+  "Europe": "Europe",
+  "Papers and attestation": "Documents et légalisation",
+  "What universities and official bodies say about your certificate": "Ce que disent les universités et les organismes officiels sur ton diplôme",
+  "Egypt is not in the Apostille Convention list we checked, so documents usually go through legalisation. Always confirm with the university and the embassy.": "L’Égypte ne figure pas dans la liste de la Convention d’apostille que nous avons vérifiée ; les documents passent donc en général par la légalisation. Confirme toujours auprès de l’université et de l’ambassade.",
+  "New opportunities from Europe: competitions, courses, scholarships and summer programs": "Nouvelles opportunités d’Europe : concours, cours, bourses et programmes d’été",
+  "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "Mon parcours montre maintenant comment légaliser tes documents et ce que disent les universités étrangères sur ton diplôme"
 };

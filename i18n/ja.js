@@ -392,5 +392,11 @@ window.I18N.ja = {
   "My Path: a step-by-step path to your dream university, starting with Egypt to Germany, the US, UK, Canada, Turkey and the UAE": "マイパス：エジプトからアメリカ、イギリス、ドイツ、カナダ、トルコ、UAEへ、夢の大学までのステップ案内",
   "Send a test alert": "テスト通知を送る",
   "Test sent. If nothing appears in a few seconds, check the notification settings of your browser on your phone.": "テストを送信しました。数秒たっても表示されない場合は、スマホのブラウザの通知設定を確認してください。",
-  "This device was not saved. Turn alerts off and on again.": "この端末は保存されませんでした。通知をオフにしてからもう一度オンにしてください。"
+  "This device was not saved. Turn alerts off and on again.": "この端末は保存されませんでした。通知をオフにしてからもう一度オンにしてください。",
+  "Europe": "ヨーロッパ",
+  "Papers and attestation": "書類と認証",
+  "What universities and official bodies say about your certificate": "大学や公的機関があなたの修了証について述べていること",
+  "Egypt is not in the Apostille Convention list we checked, so documents usually go through legalisation. Always confirm with the university and the embassy.": "確認したアポスティーユ条約の加盟国一覧にエジプトはなく、書類は通常、領事認証を経ます。必ず大学と大使館に確認してください。",
+  "New opportunities from Europe: competitions, courses, scholarships and summer programs": "ヨーロッパの新しい機会：コンテスト、講座、奨学金、サマープログラム",
+  "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "マイパスで、書類の認証方法と海外の大学があなたの修了証をどう見るかが分かるようになりました"
 };

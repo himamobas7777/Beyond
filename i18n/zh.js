@@ -392,5 +392,11 @@ window.I18N.zh = {
   "My Path: a step-by-step path to your dream university, starting with Egypt to Germany, the US, UK, Canada, Turkey and the UAE": "我的路径：从埃及出发，分步通往美国、英国、德国、加拿大、土耳其和阿联酋的梦想大学",
   "Send a test alert": "发送测试通知",
   "Test sent. If nothing appears in a few seconds, check the notification settings of your browser on your phone.": "测试已发送。如果几秒后没有出现，请检查手机上浏览器的通知设置。",
-  "This device was not saved. Turn alerts off and on again.": "此设备未保存。请先关闭再重新开启通知。"
+  "This device was not saved. Turn alerts off and on again.": "此设备未保存。请先关闭再重新开启通知。",
+  "Europe": "欧洲",
+  "Papers and attestation": "文件与认证",
+  "What universities and official bodies say about your certificate": "大学和官方机构如何看待你的证书",
+  "Egypt is not in the Apostille Convention list we checked, so documents usually go through legalisation. Always confirm with the university and the embassy.": "我们查看的《海牙认证公约》成员名单中没有埃及，因此文件通常需要领事认证。请务必向大学和使馆确认。",
+  "New opportunities from Europe: competitions, courses, scholarships and summer programs": "来自欧洲的新机会：竞赛、课程、奖学金和暑期项目",
+  "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "“我的路径”现在会显示如何认证文件，以及国外大学如何看待你的证书"
 };

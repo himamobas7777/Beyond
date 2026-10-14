@@ -31,6 +31,7 @@ const srv = http.createServer((q, r) => { let f = path.join(root, decodeURICompo
     await page.click('button.card >> nth=2'); await page.click('#app .btn.primary');
     await page.waitForSelector('.progress');
     ok((await page.$$('.path-item')).length > 10, lang + ': plan has checklist items');
+    ok((await page.$$('.card.notice')).length >= 0 && (await page.textContent('#app')).includes('Papers') || lang === 'ar', lang + ': papers section shown');
     await page.screenshot({ path: '/tmp/claude-0/path_' + lang + '.png', fullPage: true });
     const before = await page.textContent('.small.muted');
     await page.evaluate(() => document.querySelector('details').open = true);

@@ -392,5 +392,11 @@ window.I18N.ar = {
   "My Path: a step-by-step path to your dream university, starting with Egypt to Germany, the US, UK, Canada, Turkey and the UAE": "طريقي: خطوة بخطوة لجامعة أحلامك، بتبدأ من مصر وبتغطي أمريكا وبريطانيا وألمانيا وكندا وتركيا والإمارات",
   "Send a test alert": "ابعتلي تنبيه تجريبي",
   "Test sent. If nothing appears in a few seconds, check the notification settings of your browser on your phone.": "اتبعت التنبيه. لو ما ظهرش خلال ثواني، شوف إعدادات إشعارات المتصفح في موبايلك.",
-  "This device was not saved. Turn alerts off and on again.": "الجهاز ده ما اتسجّلش. أوقف التنبيهات وشغّلها تاني."
+  "This device was not saved. Turn alerts off and on again.": "الجهاز ده ما اتسجّلش. أوقف التنبيهات وشغّلها تاني.",
+  "Europe": "أوروبا",
+  "Papers and attestation": "الأوراق والتصديق",
+  "What universities and official bodies say about your certificate": "الجامعات والجهات الرسمية بتقول إيه عن شهادتك",
+  "Egypt is not in the Apostille Convention list we checked, so documents usually go through legalisation. Always confirm with the university and the embassy.": "مصر مش في قايمة اتفاقية الأبوستيل اللي راجعناها، فالأوراق غالبًا بتعدّي على التصديق (الشرعنة). اتأكد دايمًا من الجامعة والسفارة.",
+  "New opportunities from Europe: competitions, courses, scholarships and summer programs": "فرص جديدة من أوروبا: مسابقات وكورسات ومنح وبرامج صيفية",
+  "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "طريقي دلوقتي بيوريك إزاي تصدّق أوراقك والجامعات برا بتقول إيه عن شهادتك"
 };
