@@ -398,5 +398,8 @@ window.I18N.es = {
   "What universities and official bodies say about your certificate": "Qué dicen las universidades y organismos oficiales sobre tu certificado",
   "Egypt is not in the Apostille Convention list we checked, so documents usually go through legalisation. Always confirm with the university and the embassy.": "Egipto no figura en la lista del Convenio de la Apostilla que revisamos, así que los documentos suelen pasar por legalización. Confírmalo siempre con la universidad y la embajada.",
   "New opportunities from Europe: competitions, courses, scholarships and summer programs": "Nuevas oportunidades de Europa: concursos, cursos, becas y programas de verano",
-  "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "Mi camino ahora muestra cómo legalizar tus documentos y qué dicen las universidades en el extranjero sobre tu certificado"
+  "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "Mi camino ahora muestra cómo legalizar tus documentos y qué dicen las universidades en el extranjero sobre tu certificado",
+  "Facts are translated from the official English pages. Open the source link for the exact wording.": "Los datos están traducidos de las páginas oficiales en inglés. Abre el enlace de la fuente para ver el texto exacto.",
+  "Student visa": "Visado de estudiante",
+  "My Path and opportunity pages are now translated into all languages (names and titles stay in English)": "Mi camino y las páginas de oportunidades ahora están traducidas a todos los idiomas (los nombres y títulos siguen en inglés)"
 };

@@ -271,6 +271,9 @@ const BUILTIN_OPPS = [
    The "v" value is what triggers the "What's new" popup for people who have not seen it yet. Keep the text short and in English
    (it is translated through i18n). ---------- */
 const WHATS_NEW = [
+  { v: '2026-10-17', items: [
+    'My Path and opportunity pages are now translated into all languages (names and titles stay in English)'
+  ] },
   { v: '2026-10-14.2', items: [
     'New opportunities from Europe: competitions, courses, scholarships and summer programs',
     'My Path now shows how to legalise your papers and what universities abroad say about your certificate'

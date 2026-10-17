@@ -11,6 +11,7 @@ const pathKey = () => 'beyond:path:' + (S.me ? S.me.id : 'guest');
 function pathLoad() { try { const v = JSON.parse(lsGet(pathKey()) || 'null'); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } }
 function pathSave(p) { lsSet(pathKey(), JSON.stringify(p)); }
 const pathDraft = { step: 0, dream: '', major: '', country: null, system: null, year: null };
+const tx = (s) => utext(tr(str(s)));   /* researched facts: translated when a translation exists */
 const str = (v) => (v == null ? '' : String(v));
 const srcLink = (url, label) => url ? h('a', { href: url, target: '_blank', rel: 'noopener noreferrer', class: 'small' }, label || 'Source') : null;
 
@@ -52,12 +53,12 @@ function wizardView() {
     body = [head('Where do you want to study?', 'Pick a country. We will show how admission works there.'),
       Object.keys(PATH_DEST).map((id) => { const d = PATH_DEST[id];
         return h('button', { class: 'card', type: 'button', 'data-k': 'c-' + id, 'aria-pressed': String(D.country === id), style: D.country === id ? 'border-color:var(--accent)' : null, onclick: () => { D.country = id; render(); } },
-          h('div', { style: 'font-size:1.2rem;font-weight:800' }, d.flag + ' ' + tr(d.name)), h('div', { class: 'muted small' }, utext(str(d.overview).slice(0, 150) + '…'))); }),
+          h('div', { style: 'font-size:1.2rem;font-weight:800' }, d.flag + ' ' + tr(d.name)), h('div', { class: 'muted small' }, utext(tr(str(d.overview)).slice(0, 150) + '…'))); }),
       D.country ? btn('Next', next, 'primary') : null];
   } else if (D.step === 2) {
     const d = PATH_DEST[D.country];
-    body = [head(t('How admission works: {c}', { c: tr(d.name) })), h('p', null, utext(d.overview)), h('p', null, utext(d.admission_model)),
-      srcLink((d.key_links && d.key_links[0] || {}).url, (d.key_links && d.key_links[0] || {}).label), LANG !== 'en' ? h('div', { class: 'notice small' }, 'Facts are shown in English, exactly as the official source states them.') : null, btn('Next', next, 'primary')];
+    body = [head(t('How admission works: {c}', { c: tr(d.name) })), h('p', null, tx(d.overview)), h('p', null, tx(d.admission_model)),
+      srcLink((d.key_links && d.key_links[0] || {}).url, (d.key_links && d.key_links[0] || {}).label), LANG !== 'en' ? h('div', { class: 'notice small' }, 'Facts are translated from the official English pages. Open the source link for the exact wording.') : null, btn('Next', next, 'primary')];
   } else if (D.step === 3) {
     body = [head('Which school system are you in?', 'We use this to show how universities abroad see your certificate.'),
       PATH_SYSTEMS.map(([id, en, ar]) => h('button', { class: 'card', type: 'button', 'data-k': 's-' + id, 'aria-pressed': String(D.system === id), style: D.system === id ? 'border-color:var(--accent)' : null, onclick: () => { D.system = id; render(); } },
@@ -83,8 +84,8 @@ function planView(p) {
   const papers = (PATH_EGYPT.paperwork || []).filter((x) => x.country === cl || x.country === 'All' || x.country === 'Egypt');
   const itemCard = (x) => h('div', { class: 'card path-item' },
     h('label', { class: 'row', style: 'align-items:flex-start;gap:10px;margin:0' }, h('input', { type: 'checkbox', checked: done[x.key] ? true : null, 'data-k': 'p-' + x.key, onchange: () => toggle(x.key), 'aria-label': tr('Mark as done') + ': ' + str(x.head), style: 'width:24px;height:24px;flex:none;margin-top:2px' }),
-      h('div', { style: 'flex:1;min-width:0' }, h('span', { class: 'chip-mini', style: '--chip:' + KIND_COLOR[x.kind] }, tr(x.kind)), h('div', { style: 'font-weight:800;margin-top:4px' + (done[x.key] ? ';text-decoration:line-through;opacity:.7' : '') }, utext(x.head)))),
-    h('p', { style: 'margin:8px 0 4px' }, utext(x.body)), (x.ex || []).length ? h('details', null, h('summary', null, t('Examples from universities')), x.ex.map((e) => h('p', { class: 'small' }, h('b', null, utext(e.university + ': ')), utext(e.statement), ' ', srcLink(e.source)))) : null, srcLink(x.src));
+      h('div', { style: 'flex:1;min-width:0' }, h('span', { class: 'chip-mini', style: '--chip:' + KIND_COLOR[x.kind] }, tr(x.kind)), h('div', { style: 'font-weight:800;margin-top:4px' + (done[x.key] ? ';text-decoration:line-through;opacity:.7' : '') }, tx(x.head)))),
+    h('p', { style: 'margin:8px 0 4px' }, tx(x.body)), (x.ex || []).length ? h('details', null, h('summary', null, t('Examples from universities')), x.ex.map((e) => h('p', { class: 'small' }, h('b', null, utext(e.university + ': ')), tx(e.statement), ' ', srcLink(e.source)))) : null, srcLink(x.src));
   const group = (title, kinds) => { const xs = items.filter((x) => kinds.includes(x.kind)); return xs.length ? h('details', { open: title === 'Steps and dates' ? '' : null }, h('summary', { class: 'path-sum' }, tr(title) + ' (' + xs.filter((x) => done[x.key]).length + '/' + xs.length + ')'), xs.map(itemCard)) : null; };
   const countryOpps = S.opps.filter((o) => o.published !== false && (o.tags || []).includes(p.country)).slice(0, 5);
   const nextStep = items.find((x) => !done[x.key] && x.kind === 'When');
@@ -93,21 +94,21 @@ function planView(p) {
     h('p', { class: 'muted' }, [p.major, d.flag + ' ' + tr(d.name), tr(sys[1]), tr(p.year)].filter(Boolean).join(' · ')),
     h('div', { class: 'progress', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': items.length, 'aria-valuenow': n }, h('span', { style: 'width:' + (items.length ? Math.round((n / items.length) * 100) : 0) + '%' })),
     h('p', { class: 'small muted' }, t('{n} of {m} done', { n, m: items.length })),
-    nextStep ? h('div', { class: 'card quest' }, h('div', { class: 'label' }, 'Your next step'), h('div', { style: 'font-weight:800' }, utext(nextStep.head)), h('p', { style: 'margin:6px 0 0' }, utext(nextStep.body))) : null,
+    nextStep ? h('div', { class: 'card quest' }, h('div', { class: 'label' }, 'Your next step'), h('div', { style: 'font-weight:800' }, tx(nextStep.head)), h('p', { style: 'margin:6px 0 0' }, tx(nextStep.body))) : null,
     p.country === 'uk' ? h('div', { class: 'notice' }, 'UK deadline: Oxford, Cambridge and medicine applications close on 15 Oct 2026 for 2027 entry (UCAS). Check the UCAS page today.') : null,
-    LANG !== 'en' ? h('div', { class: 'notice small' }, 'Facts are shown in English, exactly as the official source states them.') : null,
+    LANG !== 'en' ? h('div', { class: 'notice small' }, 'Facts are translated from the official English pages. Open the source link for the exact wording.') : null,
     h('h2', null, 'Your certificate abroad'),
-    egSys ? h('div', { class: 'card' }, h('div', { style: 'font-weight:800' }, utext(egSys.name + ' · ' + egSys.name_ar)), h('p', null, utext(egSys.summary)), (egSys.sources || []).slice(0, 2).map((s) => h('div', null, srcLink(s)))) : null,
-    views.length ? [h('div', { class: 'muted small' }, 'What universities and official bodies say about your certificate'), views.map((x, i) => h('div', { class: i === 0 && p.country === 'germany' ? 'card notice' : 'card' }, h('div', { class: 'small muted' }, utext(x.body)), h('p', { style: 'margin:6px 0' }, utext(x.statement)), srcLink(x.source)))] : null,
-    notes.map((x) => h('div', { class: 'card' }, h('p', { style: 'margin:0 0 6px' }, utext(x.note)), srcLink(x.source))),
+    egSys ? h('div', { class: 'card' }, h('div', { style: 'font-weight:800' }, utext(egSys.name + ' · ' + egSys.name_ar)), h('p', null, tx(egSys.summary)), (egSys.sources || []).slice(0, 2).map((s) => h('div', null, srcLink(s)))) : null,
+    views.length ? [h('div', { class: 'muted small' }, 'What universities and official bodies say about your certificate'), views.map((x, i) => h('div', { class: i === 0 && p.country === 'germany' ? 'card notice' : 'card' }, h('div', { class: 'small muted' }, tx(x.body)), h('p', { style: 'margin:6px 0' }, tx(x.statement)), srcLink(x.source)))] : null,
+    notes.map((x) => h('div', { class: 'card' }, h('p', { style: 'margin:0 0 6px' }, tx(x.note)), srcLink(x.source))),
     views.length || notes.length ? null : h('p', { class: 'muted' }, 'No confirmed statement was found. Ask the university directly.'),
-    papers.length ? h('details', { open: '' }, h('summary', { class: 'path-sum' }, tr('Papers and attestation') + ' (' + papers.length + ')'), h('p', { class: 'muted small' }, 'Egypt is not in the Apostille Convention list we checked, so documents usually go through legalisation. Always confirm with the university and the embassy.'), papers.map((x) => h('div', { class: 'card' }, h('div', { style: 'font-weight:800' }, utext(x.name)), h('p', { style: 'margin:6px 0' }, utext(x.note)), srcLink(x.source)))) : null,
+    papers.length ? h('details', { open: '' }, h('summary', { class: 'path-sum' }, tr('Papers and attestation') + ' (' + papers.length + ')'), h('p', { class: 'muted small' }, 'Egypt is not in the Apostille Convention list we checked, so documents usually go through legalisation. Always confirm with the university and the embassy.'), papers.map((x) => h('div', { class: 'card' }, h('div', { style: 'font-weight:800' }, tx(x.name)), h('p', { style: 'margin:6px 0' }, tx(x.note)), srcLink(x.source)))) : null,
     group('Steps and dates', ['When']), group('Documents', ['Document']), group('Tests and languages', ['Test', 'English', 'Language']), group('Visa and money', ['Visa', 'Money']),
     h('h2', null, 'Example universities'),
-    (d.universities || []).map((u) => h('div', { class: 'card' }, h('div', { style: 'font-weight:800' }, utext(u.name)), h('p', { class: 'muted small' }, utext(u.why_example)), h('p', null, utext(u.requirements)), srcLink(u.url, 'Official page'))),
+    (d.universities || []).map((u) => h('div', { class: 'card' }, h('div', { style: 'font-weight:800' }, utext(u.name)), h('p', { class: 'muted small' }, tx(u.why_example)), h('p', null, tx(u.requirements)), srcLink(u.url, 'Official page'))),
     h('h2', null, 'Official links'), (d.key_links || []).map((l) => h('div', { style: 'margin-bottom:6px' }, srcLink(l.url, l.label))),
     h('h2', null, 'Not confirmed yet'), h('p', { class: 'muted' }, 'We could not confirm these from an official page. Please check the official site before you rely on them.'),
-    h('details', null, h('summary', null, t('Show {n} open points', { n: (d.unverified || []).length + (PATH_EGYPT.unverified || []).length })), (d.unverified || []).concat(PATH_EGYPT.unverified || []).map((u) => h('p', { class: 'small' }, '• ', utext(u)))),
+    h('details', null, h('summary', null, t('Show {n} open points', { n: (d.unverified || []).length + (PATH_EGYPT.unverified || []).length })), (d.unverified || []).concat(PATH_EGYPT.unverified || []).map((u) => h('p', { class: 'small' }, '• ', tx(u)))),
     h('h2', null, 'Opportunities that help your application'), (countryOpps.length ? countryOpps : recommend((S.me && S.me.interests) || [], myDone(), 3)).map(oppCard), btn('Explore everything', () => setTab('explore')),
     h('p', { class: 'muted small', style: 'margin-top:20px' }, t('Last checked: {d}. Rules change every year. This is a guide, not official advice.', { d: d.last_checked })),
     btn('Start over', () => { pathSave(null); Object.assign(pathDraft, { step: 0, dream: '', major: '', country: null, system: null, year: null }); render(); }, 'danger'));
@@ -118,5 +119,5 @@ function pathHomeCard() {
   const p = pathLoad(), d = p && PATH_DEST[p.country];
   if (!d) return h('button', { class: 'card quest', type: 'button', onclick: () => go({ name: 'path' }) }, h('div', { class: 'label' }, 'New: My Path'), h('div', { class: 'quest-text' }, 'A step-by-step path to your dream university'), h('p', { class: 'muted', style: 'margin:6px 0 0' }, 'From Egypt to the world.'));
   const items = pathItems(d), n = items.filter((x) => (p.done || {})[x.key]).length, nx = items.find((x) => !(p.done || {})[x.key] && x.kind === 'When') || items.find((x) => !(p.done || {})[x.key]);
-  return h('button', { class: 'card quest', type: 'button', onclick: () => go({ name: 'path' }) }, h('div', { class: 'label' }, 'My Path'), h('div', { class: 'quest-text' }, p.dream ? t('Your path to {u}', { u: p.dream }) : 'Your path'), h('div', { class: 'small muted' }, t('{n} of {m} done', { n, m: items.length })), nx ? h('p', { style: 'margin:6px 0 0' }, h('b', null, tr('Your next step') + ': '), utext(str(nx.head).slice(0, 90))) : null);
+  return h('button', { class: 'card quest', type: 'button', onclick: () => go({ name: 'path' }) }, h('div', { class: 'label' }, 'My Path'), h('div', { class: 'quest-text' }, p.dream ? t('Your path to {u}', { u: p.dream }) : 'Your path'), h('div', { class: 'small muted' }, t('{n} of {m} done', { n, m: items.length })), nx ? h('p', { style: 'margin:6px 0 0' }, h('b', null, tr('Your next step') + ': '), utext(tr(str(nx.head)).slice(0, 90))) : null);
 }

@@ -14,13 +14,22 @@ function loadLangFile(code) {
   return new Promise((res) => {
     if (code === 'en') return res({});
     if (window.I18N && window.I18N[code]) return res(window.I18N[code]);
-    const s = document.createElement('script'); s.src = 'i18n/' + code + '.js?v=20261014b';
+    const s = document.createElement('script'); s.src = 'i18n/' + code + '.js?v=20261017';
     s.onload = () => res((window.I18N && window.I18N[code]) || {}); s.onerror = () => res({}); document.head.appendChild(s);
+  });
+}
+function loadDataFile(code) { /* translated facts (My Path, opportunities): English sentence -> translation */
+  return new Promise((res) => {
+    if (code === 'en') return res({});
+    if (window.I18N_DATA && window.I18N_DATA[code]) return res(window.I18N_DATA[code]);
+    const s = document.createElement('script'); s.src = 'i18n/' + code + '.data.js?v=20261017';
+    s.onload = () => res((window.I18N_DATA && window.I18N_DATA[code]) || {}); s.onerror = () => res({}); document.head.appendChild(s);
   });
 }
 async function setLang(code, rerender) {
   if (!LANGS.some((l) => l[0] === code)) code = 'en';
-  DICT = await loadLangFile(code); LANG = code; applyLangAttrs();
+  const [ui, data] = await Promise.all([loadLangFile(code), loadDataFile(code)]);
+  DICT = Object.assign({}, data, ui); LANG = code; applyLangAttrs();
   try { localStorage.setItem('beyond:lang', code); } catch (e) {}
   if (rerender && typeof render === 'function') render();
 }

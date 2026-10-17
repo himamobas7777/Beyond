@@ -398,5 +398,8 @@ window.I18N.zh = {
   "What universities and official bodies say about your certificate": "大学和官方机构如何看待你的证书",
   "Egypt is not in the Apostille Convention list we checked, so documents usually go through legalisation. Always confirm with the university and the embassy.": "我们查看的《海牙认证公约》成员名单中没有埃及，因此文件通常需要领事认证。请务必向大学和使馆确认。",
   "New opportunities from Europe: competitions, courses, scholarships and summer programs": "来自欧洲的新机会：竞赛、课程、奖学金和暑期项目",
-  "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "“我的路径”现在会显示如何认证文件，以及国外大学如何看待你的证书"
+  "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "“我的路径”现在会显示如何认证文件，以及国外大学如何看待你的证书",
+  "Facts are translated from the official English pages. Open the source link for the exact wording.": "信息译自官方英文页面。请打开来源链接查看准确原文。",
+  "Student visa": "学生签证",
+  "My Path and opportunity pages are now translated into all languages (names and titles stay in English)": "“我的路径”和机会页面现已翻译成所有语言（名称和标题保持英文）"
 };

@@ -398,5 +398,8 @@ window.I18N.ar = {
   "What universities and official bodies say about your certificate": "الجامعات والجهات الرسمية بتقول إيه عن شهادتك",
   "Egypt is not in the Apostille Convention list we checked, so documents usually go through legalisation. Always confirm with the university and the embassy.": "مصر مش في قايمة اتفاقية الأبوستيل اللي راجعناها، فالأوراق غالبًا بتعدّي على التصديق (الشرعنة). اتأكد دايمًا من الجامعة والسفارة.",
   "New opportunities from Europe: competitions, courses, scholarships and summer programs": "فرص جديدة من أوروبا: مسابقات وكورسات ومنح وبرامج صيفية",
-  "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "طريقي دلوقتي بيوريك إزاي تصدّق أوراقك والجامعات برا بتقول إيه عن شهادتك"
+  "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "طريقي دلوقتي بيوريك إزاي تصدّق أوراقك والجامعات برا بتقول إيه عن شهادتك",
+  "Facts are translated from the official English pages. Open the source link for the exact wording.": "المعلومات مترجمة من الصفحات الرسمية بالإنجليزي. افتح لينك المصدر عشان تشوف الصياغة الأصلية بالظبط.",
+  "Student visa": "فيزا الدراسة",
+  "My Path and opportunity pages are now translated into all languages (names and titles stay in English)": "طريقي وصفحات الفرص اتترجمت دلوقتي لكل اللغات (الأسماء والعناوين بتفضل بالإنجليزي)"
 };

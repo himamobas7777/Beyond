@@ -398,5 +398,8 @@ window.I18N.ja = {
   "What universities and official bodies say about your certificate": "大学や公的機関があなたの修了証について述べていること",
   "Egypt is not in the Apostille Convention list we checked, so documents usually go through legalisation. Always confirm with the university and the embassy.": "確認したアポスティーユ条約の加盟国一覧にエジプトはなく、書類は通常、領事認証を経ます。必ず大学と大使館に確認してください。",
   "New opportunities from Europe: competitions, courses, scholarships and summer programs": "ヨーロッパの新しい機会：コンテスト、講座、奨学金、サマープログラム",
-  "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "マイパスで、書類の認証方法と海外の大学があなたの修了証をどう見るかが分かるようになりました"
+  "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "マイパスで、書類の認証方法と海外の大学があなたの修了証をどう見るかが分かるようになりました",
+  "Facts are translated from the official English pages. Open the source link for the exact wording.": "情報は公式の英語ページから翻訳したものです。正確な文言は出典リンクで確認してください。",
+  "Student visa": "学生ビザ",
+  "My Path and opportunity pages are now translated into all languages (names and titles stay in English)": "マイパスと機会のページがすべての言語に翻訳されました（名前とタイトルは英語のままです）"
 };
