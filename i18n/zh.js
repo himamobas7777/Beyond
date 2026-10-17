@@ -401,5 +401,6 @@ window.I18N.zh = {
   "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "“我的路径”现在会显示如何认证文件，以及国外大学如何看待你的证书",
   "Facts are translated from the official English pages. Open the source link for the exact wording.": "信息译自官方英文页面。请打开来源链接查看准确原文。",
   "Student visa": "学生签证",
-  "My Path and opportunity pages are now translated into all languages (names and titles stay in English)": "“我的路径”和机会页面现已翻译成所有语言（名称和标题保持英文）"
+  "My Path and opportunity pages are now translated into all languages (names and titles stay in English)": "“我的路径”和机会页面现已翻译成所有语言（名称和标题保持英文）",
+  "26 new opportunities from the USA, Canada, Turkey, the Gulf and Asia": "来自美国、加拿大、土耳其、海湾地区和亚洲的 26 个新机会"
 };

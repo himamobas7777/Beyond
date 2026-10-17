@@ -401,5 +401,6 @@ window.I18N.ja = {
   "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "マイパスで、書類の認証方法と海外の大学があなたの修了証をどう見るかが分かるようになりました",
   "Facts are translated from the official English pages. Open the source link for the exact wording.": "情報は公式の英語ページから翻訳したものです。正確な文言は出典リンクで確認してください。",
   "Student visa": "学生ビザ",
-  "My Path and opportunity pages are now translated into all languages (names and titles stay in English)": "マイパスと機会のページがすべての言語に翻訳されました（名前とタイトルは英語のままです）"
+  "My Path and opportunity pages are now translated into all languages (names and titles stay in English)": "マイパスと機会のページがすべての言語に翻訳されました（名前とタイトルは英語のままです）",
+  "26 new opportunities from the USA, Canada, Turkey, the Gulf and Asia": "アメリカ、カナダ、トルコ、湾岸諸国、アジアの新しい機会26件"
 };

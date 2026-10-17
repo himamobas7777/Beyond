@@ -401,5 +401,6 @@ window.I18N.ar = {
   "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "طريقي دلوقتي بيوريك إزاي تصدّق أوراقك والجامعات برا بتقول إيه عن شهادتك",
   "Facts are translated from the official English pages. Open the source link for the exact wording.": "المعلومات مترجمة من الصفحات الرسمية بالإنجليزي. افتح لينك المصدر عشان تشوف الصياغة الأصلية بالظبط.",
   "Student visa": "فيزا الدراسة",
-  "My Path and opportunity pages are now translated into all languages (names and titles stay in English)": "طريقي وصفحات الفرص اتترجمت دلوقتي لكل اللغات (الأسماء والعناوين بتفضل بالإنجليزي)"
+  "My Path and opportunity pages are now translated into all languages (names and titles stay in English)": "طريقي وصفحات الفرص اتترجمت دلوقتي لكل اللغات (الأسماء والعناوين بتفضل بالإنجليزي)",
+  "26 new opportunities from the USA, Canada, Turkey, the Gulf and Asia": "26 فرصة جديدة من أمريكا وكندا وتركيا والخليج وآسيا"
 };

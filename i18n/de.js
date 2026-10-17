@@ -401,5 +401,6 @@ window.I18N.de = {
   "My Path now shows how to legalise your papers and what universities abroad say about your certificate": "Mein Weg zeigt jetzt, wie du Unterlagen legalisierst und was Hochschulen im Ausland zu deinem Zeugnis sagen",
   "Facts are translated from the official English pages. Open the source link for the exact wording.": "Die Fakten sind aus den offiziellen englischen Seiten übersetzt. Öffne den Quelllink für den genauen Wortlaut.",
   "Student visa": "Studentenvisum",
-  "My Path and opportunity pages are now translated into all languages (names and titles stay in English)": "Mein Weg und die Chancen-Seiten sind jetzt in alle Sprachen übersetzt (Namen und Titel bleiben auf Englisch)"
+  "My Path and opportunity pages are now translated into all languages (names and titles stay in English)": "Mein Weg und die Chancen-Seiten sind jetzt in alle Sprachen übersetzt (Namen und Titel bleiben auf Englisch)",
+  "26 new opportunities from the USA, Canada, Turkey, the Gulf and Asia": "26 neue Chancen aus den USA, Kanada, der Türkei, dem Golf und Asien"
 };
